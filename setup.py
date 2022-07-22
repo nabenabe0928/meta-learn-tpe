@@ -8,12 +8,12 @@ with open("requirements.txt", "r") as f:
 
 
 setuptools.setup(
-    name="repo-template",
+    name="meta-learn-tpe",
     version="0.0.1",
     author="nabenabe0928",
     author_email="shuhei.watanabe.utokyo@gmail.com",
-    url="https://github.com/nabenabe0928/repo-template",
-    packages=setuptools.find_packages(),
+    url="https://github.com/nabenabe0928/meta-learn-tpe",
+    packages=["tpe", "tpe.optimizer", "tpe.utils"],
     python_requires=">=3.8",
     platforms=["Linux"],
     install_requires=requirements,

@@ -1,25 +1,46 @@
-# A repository template
+[![Build Status](https://github.com/nabenabe0928/meta-learn-tpe/workflows/Functionality%20test/badge.svg?branch=main)](https://github.com/nabenabe0928/meta-learn-tpe)
+[![codecov](https://codecov.io/gh/nabenabe0928/meta-learn-tpe/branch/main/graph/badge.svg?token=L58IRLON7E)](https://codecov.io/gh/nabenabe0928/meta-learn-tpe)
 
-[![Build Status](https://github.com/nabenabe0928/repo-template/workflows/Functionality%20test/badge.svg?branch=main)](https://github.com/nabenabe0928/repo-template)
-[![codecov](https://codecov.io/gh/nabenabe0928/repo-template/branch/main/graph/badge.svg?token=FQWPWEJSWE)](https://codecov.io/gh/nabenabe0928/repo-template)
+# Introduction
+This package is the implementation example of tree-structured parzen estimator (TPE).
+TPE is an hyperparameter optimization (HPO) method invented in [`Algorithms for Hyper-Parameter Optimization`](https://papers.nips.cc/paper/2011/file/86e8f7ab32cfd12577bc2619bc635690-Paper.pdf).
 
-Before copying the repository, please make sure to change the following parts:
-1. The name of the `repo_name` directory
-2. `include` in `.coveragerc`
-3. The URLs to `Build Status` and `codecov` (we need to copy from the `codecov` website) in `README.md`
-4. Setting up the `codecov` of the repository
-5. The token of `codecov.yml`
-6. `Copyright` in `LICENSE`
-7. `name`, `author`, `author email`, and `url` in `setup.py`
-8. The targets of `.pre-commit-config.yaml` (Lines 8, 14)
-9. `--cov=<target>` in Line 46 of `python-app.yml` (if there are multiple targets, use `--cov=<target 1> --cov=<target 2> ...`)
-10. `target` in `check_github_actions_locally.sh`
+**NOTE**: The sampling strategy is based on the [BOHB](http://proceedings.mlr.press/v80/falkner18a/falkner18a.pdf) implementation.
 
-## Local check
-
-In order to check if the codebase passes Github actions, run the following:
-
-```shell
-$ pip install black pytest unittest flake8 pre-commit pytest-cov
-$ ./check_github_actions_locally.sh
+# Setup
+This package requires python 3.8 or later version and you can install 
 ```
+pip install tpe
+```
+
+# Running example
+The optimization of 10D sphere function can be executed as follows:
+
+```python
+from typing import Dict
+
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
+import numpy as np
+
+from tpe.optimizer import TPEOptimizer
+
+
+def sphere(eval_config: Dict[str, float]) -> float:
+    vals = np.array(list(eval_config.values()))
+    vals *= vals
+    return np.sum(vals)
+
+
+if __name__ == '__main__':
+    dim = 10
+    cs = CS.ConfigurationSpace()
+    for d in range(dim):
+        cs.add_hyperparameter(CSH.UniformFloatHyperparameter(f'x{d}', lower=-5, upper=5))
+
+    opt = TPEOptimizer(obj_func=sphere, config_space=cs, resultfile='sphere')
+    # If you do not want to do logging, remove the `logger_name` argument
+    opt.optimize(logger_name="sphere")
+```
+
+The documentation of `ConfigSpace` is available [here](https://automl.github.io/ConfigSpace/master/).

@@ -1,8 +1,5 @@
-# For package
-
-# For local check
-pytest-cov
-pytest
-flake8
-black
-mypy
+numpy
+ConfigSpace
+parzen_estimator
+fast-pareto
+hpo-task-similarity
