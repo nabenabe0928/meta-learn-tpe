@@ -1,0 +1,95 @@
+{
+    "DocumentStringModule":{
+        "prefix": "doc-string-module",
+        "body": [
+            "\"\"\"The title of the module description",
+            "* Describe at the beginning of the source code.",
+            "* Describe before the package imports",
+            "",
+            "TODO:",
+            "Listing TODOs",
+            "\t* TODO1",
+            "\t* TODO2",
+            "",
+            "\"\"\"",
+        ]
+    },
+    "DocumentStringClass":{
+        "prefix": "doc-string-class",
+        "body": [
+            "\"\"\"The title of the class description",
+            "",
+            "The description of the class",
+            "",
+            "Attributes:",
+            "\tVariable names (type of the variable): The description",
+            "\tVariable names (:obj: type of the variable): The description",
+            "",
+            "\"\"\"",
+        ]
+    },
+    "DocumentStringFunction":{
+        "prefix": "doc-string-function",
+        "body": [
+            "\"\"\"The title of the function description",
+            "",
+            "The description of the function",
+            "",
+            "Args:",
+            "\tVariable names (type of the variable): The description",
+            "\tVariable names (:obj: type of the variable): The description",
+            "",
+            "Returns:",
+            "\tType of the returns: The description",
+            "",
+            "Raises:",
+            "\tType of the exception: The description",
+            "",
+            "Yields:",
+            "\tType of the returns: The description",
+            "",
+            "Examples: (When using '\\' escape sequence, repeat twice like '\\\\\\' to show properly in the code block)",
+            "\tThe description how to use this function",
+            "",
+            "\t>>> test(*args)",
+            "\t\tThe Test was successful!!",
+            "",
+            "Note:",
+            "\tWhat to pay attention.",
+            "",
+            "\"\"\"",
+        ]
+    },
+    "TraceMemoryUsage":{
+        "prefix": "trace-memory-usage",
+        "body": [
+            "import tracemalloc",
+            "import time",
+            "",
+            "",
+            "def format_bytes(size):",
+            "\tpower = 2 ** 10  # 2 ** 10 = 1024",
+            "\tn = 0",
+            "\tpower_labels = ['B', 'KB', 'MB', 'GB', 'TB']",
+            "\twhile size > power and n <= len(power_labels):",
+            "\t\tsize /= power",
+            "\t\tn += 1",
+            "\treturn 'current used memory: {:.3f} {}'.format(size, power_labels[n])",
+            "",
+            "",
+            "def log_memory():",
+            "\ttime.sleep(1.0)",
+            "\tsnapshot = tracemalloc.take_snapshot()",
+            "\tsize = sum([stat.size for stat in snapshot.statistics('filename')])",
+            "\tprint(f'{format_bytes(size)}: {time.time()}')",
+            "\ttime.sleep(1.0)",
+        ]
+    },
+    "MainStatement":{
+        "prefix": "main-statement",
+        "body": [
+            "if __name__=='__main__':",
+            "\t"
+        ]
+    }
+}

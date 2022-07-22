@@ -1,0 +1,22 @@
+{
+    "python.linting.pylintEnabled": false,
+    "python.linting.pycodestyleEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "autopep8",
+    "python.linting.pycodestyleArgs":[
+        "--max-line-length=120",
+    ],
+    "python.linting.flake8Args":[
+        "--max-line-length=120",
+    ],
+    "python.formatting.autopep8Args": [
+        "--aggressive", "--aggressive",
+    ],
+    "python.pythonPath": "/home/shuhei/anaconda3/envs/ctpe/bin/python",
+    "restructuredtext.confPath": "",
+    "restructuredtext.languageServer.disabled": true,
+    "files.watcherExclude": {
+        "**/results/**": true
+    }
+}
