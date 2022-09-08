@@ -31,6 +31,7 @@ class TPEOptimizer(BaseOptimizer):
         top: float = 1.0,
         warmstart_configs: Optional[Dict[str, np.ndarray]] = None,
         random_ratio: Optional[float] = None,
+        minimize: Optional[Dict[str, bool]] = None,
         # The control parameters for experiments
         quantile: float = 0.1,
         uniform_transform: bool = False,
@@ -88,6 +89,7 @@ class TPEOptimizer(BaseOptimizer):
             seed=seed,
             min_bandwidth_factor=min_bandwidth_factor,
             top=top,
+            minimize=minimize,
         )
         self._sampler: Union[TPE, ConstraintTPE, MetaLearnTPE, MultiObjectiveTPE]
         self._warmstart_configs = warmstart_configs

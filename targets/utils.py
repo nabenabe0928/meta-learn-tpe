@@ -121,24 +121,24 @@ def get_hyperparameter(
     return hyperparameter
 
 
-def get_config_space(searching_space: Dict[str, ParameterSettings], hp_module_path: str) -> CS.ConfigurationSpace:
+def get_config_space(search_space: Dict[str, ParameterSettings], hp_module_path: str) -> CS.ConfigurationSpace:
     """
     Create the config space by CS.ConfigurationSpace based on searching space dict
 
     Args:
-        searching_space (Dict[str, ParameterSettings]):
+        search_space (Dict[str, ParameterSettings]):
             The dict of the pairs of a parameter name and the details
         hp_module_path (str): The path of the module describing the searching space
 
     Returns:
         cs (CS.ConfigurationSpace):
-            The configuration space that includes the parameters specified in searching_space
+            The configuration space that includes the parameters specified in search_space
     """
 
     settings_keys = set(ParameterSettings.__annotations__.keys())
     cs = CS.ConfigurationSpace()
     type_choices = ["int", "float", "bool", "str"]
-    for param_name, settings in searching_space.items():
+    for param_name, settings in search_space.items():
         if param_name.startswith("_") or settings["ignore"] == "True":
             continue
 
@@ -192,7 +192,7 @@ def get_logger(file_name: str, logger_name: str) -> Logger:
 def extract_hyperparameter(
     eval_config: Dict[str, Any],
     config_space: CS.ConfigurationSpace,
-    searching_space: Dict[str, ParameterSettings],
+    search_space: Dict[str, ParameterSettings],
     hp_module_path: str,
 ) -> Dict[str, Any]:
     """
@@ -204,7 +204,7 @@ def extract_hyperparameter(
             The categorical is provided by one of the key strings.
         config_space (CS.ConfigurationSpace):
             The configuration space
-        searching_space (Dict[str, ParameterSettings]):
+        search_space (Dict[str, ParameterSettings]):
             Dict information taken from a prepared json file.
         hp_module_path (str):
             The path where the `hyperparameters.py` for the target
@@ -219,7 +219,7 @@ def extract_hyperparameter(
     return_config = {}
     hp_module = get_hyperparameter_module(hp_module_path)
     for key, val in eval_config.items():
-        hp_info = searching_space[key]
+        hp_info = search_space[key]
         if not isinstance(val, str):
             return_config[key] = val
             continue

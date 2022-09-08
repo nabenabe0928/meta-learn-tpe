@@ -27,6 +27,7 @@ class MetaLearnTPE(AbstractTPE):
         min_bandwidth_factor: float,
         top: float,
         metadata: Dict[str, Dict[str, np.ndarray]],
+        minimize: Optional[Dict[str, bool]],
         # The control parameters for experiments
         quantile: float,
         uniform_transform: bool,
@@ -47,6 +48,7 @@ class MetaLearnTPE(AbstractTPE):
             seed=seed,
             min_bandwidth_factor=min_bandwidth_factor,
             top=top,
+            minimize=minimize,
         )
         self._quantile = quantile
         self._uniform_transform = uniform_transform

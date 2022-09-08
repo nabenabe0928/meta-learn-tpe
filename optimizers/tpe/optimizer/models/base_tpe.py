@@ -50,6 +50,7 @@ class BaseTPE(AbstractTPE, metaclass=ABCMeta):
         seed: Optional[int],
         min_bandwidth_factor: float,
         top: float,
+        minimize: Optional[Dict[str, bool]],
     ):
         """
         Attributes:
@@ -76,6 +77,9 @@ class BaseTPE(AbstractTPE, metaclass=ABCMeta):
         self._percentile = 0.0
         self._min_bandwidth_factor = min_bandwidth_factor
         self._top = top
+        self._minimize = {
+            obj_name: True if minimize is None else minimize.get(obj_name, True) for obj_name in self._objective_names
+        }
 
         self._observations: Dict[str, np.ndarray] = {hp_name: np.array([]) for hp_name in self._hp_names}
         self._sorted_observations: Dict[str, np.ndarray] = {hp_name: np.array([]) for hp_name in self._hp_names}

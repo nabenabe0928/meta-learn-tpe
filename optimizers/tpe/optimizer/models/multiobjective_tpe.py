@@ -19,6 +19,7 @@ class MultiObjectiveTPE(BaseTPE):
         seed: Optional[int],
         min_bandwidth_factor: float,
         top: float,
+        minimize: Optional[Dict[str, bool]],
         # The control parameters for experiments
         quantile: float,
     ):
@@ -30,6 +31,7 @@ class MultiObjectiveTPE(BaseTPE):
             seed=seed,
             min_bandwidth_factor=min_bandwidth_factor,
             top=top,
+            minimize=minimize,
         )
         self._n_fronts: int
         self._quantile = quantile
@@ -60,7 +62,12 @@ class MultiObjectiveTPE(BaseTPE):
 
             costs[-1, idx] = new_loss
 
-        self._nondominated_ranks = nondominated_rank(costs, tie_break=True)
+        larger_is_better_objectives = [
+            idx for idx, obj_name in enumerate(self._objective_names) if self._minimize[obj_name]
+        ]
+        self._nondominated_ranks = nondominated_rank(
+            costs, tie_break=True, larger_is_better_objectives=larger_is_better_objectives
+        )
         self._n_fronts = np.sum(is_pareto_front(costs))
         self._order = np.argsort(self._nondominated_ranks)
         return self._order
