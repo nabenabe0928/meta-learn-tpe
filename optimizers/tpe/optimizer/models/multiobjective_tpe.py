@@ -19,6 +19,8 @@ class MultiObjectiveTPE(BaseTPE):
         seed: Optional[int],
         min_bandwidth_factor: float,
         top: float,
+        # The control parameters for experiments
+        quantile: float,
     ):
         super().__init__(
             config_space=config_space,
@@ -30,12 +32,13 @@ class MultiObjectiveTPE(BaseTPE):
             top=top,
         )
         self._n_fronts: int
+        self._quantile = quantile
         self._nondominated_ranks: np.ndarray
 
     def _percentile_func(self) -> int:
         # TODO: Check ==> percentile_func for MO without max(n_fronts, ...)
         n_observations = self._observations[self._objective_names[0]].size
-        return max(self._n_fronts, int(np.ceil(0.10 * n_observations)))
+        return max(self._n_fronts, int(np.ceil(self._quantile * n_observations)))
 
     def _calculate_order(self, results: Optional[Dict[str, float]] = None) -> np.ndarray:
         with_new_result = results is not None

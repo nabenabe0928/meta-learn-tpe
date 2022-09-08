@@ -31,6 +31,10 @@ class TPEOptimizer(BaseOptimizer):
         top: float = 1.0,
         warmstart_configs: Optional[Dict[str, np.ndarray]] = None,
         random_ratio: Optional[float] = None,
+        # The control parameters for experiments
+        quantile: float = 0.1,
+        uniform_transform: bool = False,
+        dim_reduction_factor: float = 5.0,
     ):
         """
         Args:
@@ -71,6 +75,11 @@ class TPEOptimizer(BaseOptimizer):
             runtime_name=runtime_name,
             only_requirements=only_requirements,
         )
+        # Start: The control parameters for experiments
+        self._quantile = quantile
+        self._uniform_transform = uniform_transform
+        self._dim_reduction_factor = dim_reduction_factor
+        # END: The control parameters for experiments
 
         tpe_params = dict(
             config_space=config_space,
@@ -98,14 +107,20 @@ class TPEOptimizer(BaseOptimizer):
     ) -> None:
         if metadata is not None:
             self._sampler = MetaLearnTPE(
-                objective_names=objective_names, constraints=constraints, metadata=metadata, **tpe_params
+                objective_names=objective_names,
+                constraints=constraints,
+                metadata=metadata,
+                quantile=self._quantile,
+                uniform_transform=self._uniform_transform,
+                dim_reduction_factor=self._dim_reduction_factor,
+                **tpe_params,
             )
         elif constraints is not None:
             self._sampler = ConstraintTPE(objective_names=objective_names, constraints=constraints, **tpe_params)
         elif len(objective_names) == 1:
             self._sampler = TPE(objective_name=objective_names[0], **tpe_params)
         else:
-            self._sampler = MultiObjectiveTPE(objective_names=objective_names, **tpe_params)
+            self._sampler = MultiObjectiveTPE(objective_names=objective_names, quantile=self._quantile, **tpe_params)
 
     def _validate_hyperparameters(self, observations: Dict[str, np.ndarray]) -> None:
         for hp_name in self._config_space:

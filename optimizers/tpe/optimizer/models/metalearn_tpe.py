@@ -27,9 +27,13 @@ class MetaLearnTPE(AbstractTPE):
         min_bandwidth_factor: float,
         top: float,
         metadata: Dict[str, Dict[str, np.ndarray]],
+        # The control parameters for experiments
+        quantile: float,
+        uniform_transform: bool,
+        dim_reduction_factor: float,
+        # Until here
         constraints: Optional[Dict[str, float]] = None,
-        n_samples: int = 200,
-        dim_reduction_factor: float = 5.0,
+        n_samples: int = 1000,
     ):
         if OBJECTIVE_KEY in metadata:
             raise KeyError(f"metadata cannot include the key name {OBJECTIVE_KEY}")
@@ -44,7 +48,10 @@ class MetaLearnTPE(AbstractTPE):
             min_bandwidth_factor=min_bandwidth_factor,
             top=top,
         )
+        self._quantile = quantile
+        self._uniform_transform = uniform_transform
         self._dim_reduction_factor = dim_reduction_factor
+
         self._source_task_hp_importance: Optional[Dict[str, np.ndarray]] = None
         self._objective_names = objective_names[:]
         self._n_samples = n_samples
@@ -77,7 +84,7 @@ class MetaLearnTPE(AbstractTPE):
 
         self._samplers[OBJECTIVE_KEY] = sampler_class(**tpe_params)
         for task_name, data in metadata.items():
-            sampler = sampler_class(**tpe_params)
+            sampler = sampler_class(**tpe_params, quantile=self._quantile)
             sampler.apply_knowledge_augmentation(data)
             self._samplers[task_name] = sampler
 
@@ -93,23 +100,26 @@ class MetaLearnTPE(AbstractTPE):
         observations_set: List[Dict[str, np.ndarray]] = [
             self._samplers[task_name].observations for task_name in self._task_names
         ]
-        ts = IoUTaskSimilarity(
-            n_samples=self._n_samples,
-            config_space=self._config_space,
-            observations_set=observations_set,
-            objective_names=self._objective_names,
-            promising_quantile=0.10,  # same as in mo-tpe, and this must be adapted
-            rng=self._rng,
-            dim_reduction_factor=self._dim_reduction_factor,
-            source_task_hp_importance=self._source_task_hp_importance,
-        )
-        if self._source_task_hp_importance is None:
-            self._source_task_hp_importance = ts.source_task_hp_importance
-
         n_tasks = len(self._task_names)
-        sim = ts.compute(task_pairs=[(0, i) for i in range(1, n_tasks)])
-        assert isinstance(sim[0], np.ndarray)  # mypy re-definition
-        return sim[0]
+        if self._uniform_transform:  # only for experiments
+            return np.ones(n_tasks, dtype=np.float64)
+        else:
+            ts = IoUTaskSimilarity(
+                n_samples=self._n_samples,
+                config_space=self._config_space,
+                observations_set=observations_set,
+                objective_names=self._objective_names,
+                promising_quantile=self._quantile,  # same as in mo-tpe, and this must be adapted
+                rng=self._rng,
+                dim_reduction_factor=self._dim_reduction_factor,
+                source_task_hp_importance=self._source_task_hp_importance,
+            )
+            if self._source_task_hp_importance is None:
+                self._source_task_hp_importance = ts.source_task_hp_importance
+
+            sim = ts.compute(task_pairs=[(0, i) for i in range(1, n_tasks)])
+            assert isinstance(sim[0], np.ndarray)  # mypy re-definition
+            return sim[0]
 
     def _compute_task_weights(self, sim: np.ndarray) -> np.ndarray:
         n_tasks = len(self._task_names)
