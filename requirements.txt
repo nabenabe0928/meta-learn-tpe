@@ -3,3 +3,4 @@ ConfigSpace
 parzen_estimator
 fast-pareto
 hpo-task-similarity
+empirical-attainment-func
