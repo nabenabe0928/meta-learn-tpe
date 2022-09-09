@@ -74,8 +74,12 @@ def evaluate_warmstart_configs(
     hp_names, obj_names = bench.hp_names, bench.obj_names
     n_warmstart = warmstart_configs[hp_names[0]].size
     warmstart_configs.update({obj_name: np.zeros(n_warmstart, dtype=np.float64) for obj_name in obj_names})
+    search_space = bench._search_space
     for i in range(n_warmstart):
-        config = {hp_name: warmstart_configs[hp_name][i] for hp_name in hp_names}
+        config = {
+            hp_name: type(search_space[hp_name][0])(warmstart_configs[hp_name][i])
+            for hp_name in hp_names
+        }
         results = obj_func(config)
         for obj_name, val in results.items():
             warmstart_configs[obj_name][i] = val
@@ -158,12 +162,12 @@ def optimize_by_bo(
     )
 
     def _wrapper_func(config):
-        eval_config = {k: v if k not in search_space else search_space[k][v] for k, v in config.items()}
+        eval_config = {k: v if isinstance(v, str) else search_space[k][v] for k, v in config.items()}
         return obj_func(eval_config)
 
     opt = MetaLearnGPSampler(max_evals=1, obj_func=_wrapper_func, model=gp_model, **kwargs)
     opt.optimize()
-    raise convert_to_original_config(data=opt.observations, search_space=search_space, hp_names=hp_names)
+    return convert_to_original_config(data=opt.observations, search_space=search_space, hp_names=hp_names)
 
 
 def get_opt_name(args: Namespace) -> str:
