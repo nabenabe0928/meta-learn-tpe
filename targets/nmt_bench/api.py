@@ -42,9 +42,6 @@ class NMTBench(BaseTabularBenchAPI):
             seed=seed,
             obj_names=[PERF_KEY, RUNTIME_KEY],
         )
-        self._search_space = {
-            k: v["sequence"] for k, v in json.load(open(f"{MODULE_PATH}/params.json")).items() if not k.startswith("_")
-        }
         self._hp_names = list(self._search_space.keys())
         self._path = path
         self._data = {k: np.asarray(v) for k, v in json.load(open(os.path.join(path, dataset.value))).items()}

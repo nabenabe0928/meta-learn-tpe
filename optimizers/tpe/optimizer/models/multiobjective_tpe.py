@@ -63,7 +63,7 @@ class MultiObjectiveTPE(BaseTPE):
             costs[-1, idx] = new_loss
 
         larger_is_better_objectives = [
-            idx for idx, obj_name in enumerate(self._objective_names) if self._minimize[obj_name]
+            idx for idx, obj_name in enumerate(self._objective_names) if not self._minimize[obj_name]
         ]
         self._nondominated_ranks = nondominated_rank(
             costs, tie_break=True, larger_is_better_objectives=larger_is_better_objectives

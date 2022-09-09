@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, Namespace
-from typing import Dict, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -14,7 +14,7 @@ from optimizers.warm_start_config_selector import (
     collect_metadata,
     get_result_file_path,
     save_observations,
-    select_warm_start_configs
+    select_warm_start_configs,
 )
 
 from targets.base_tabularbench_api import BaseTabularBenchAPI
@@ -57,6 +57,10 @@ def get_metadata_and_warm_start_configs(
             n_configs=5,
             hp_names=bench.hp_names,
             obj_names=bench.obj_names,
+            seed=seed,
+            larger_is_better_objectives=[
+                idx for idx, obj_name in enumerate(bench.obj_names) if not bench.minimize[obj_name]
+            ],
         )
         return metadata, warmstart_configs
     else:
@@ -86,7 +90,7 @@ def optimize_by_tpe(
     warmstart_configs: Optional[Dict[str, np.ndarray]],
 ) -> Dict[str, np.ndarray]:
     opt = TPEOptimizer(
-        obj_func=bench.obj_func,
+        obj_func=bench.objective_func,
         config_space=bench.config_space,
         objective_names=bench.obj_names,
         max_evals=100,
@@ -102,6 +106,32 @@ def optimize_by_tpe(
     return opt.fetch_observations()
 
 
+def convert_to_index_config(
+    data: Dict[str, np.ndarray],
+    search_space: Dict[str, List[Any]],
+    hp_names: List[str],
+) -> Dict[str, np.ndarray]:
+    return {
+        hp_name: np.asarray([search_space[hp_name].index(v) for v in vs])
+        if np.issubdtype(vs.dtype, np.number) and hp_name in hp_names
+        else vs
+        for hp_name, vs in data.items()
+    }
+
+
+def convert_to_original_config(
+    data: Dict[str, np.ndarray],
+    search_space: Dict[str, List[Any]],
+    hp_names: List[str],
+) -> Dict[str, np.ndarray]:
+    return {
+        hp_name: np.asarray([search_space[hp_name][v] for v in vs])
+        if np.issubdtype(vs.dtype, np.number) and hp_name in hp_names
+        else vs
+        for hp_name, vs in data.items()
+    }
+
+
 def optimize_by_bo(
     opt_name: str,
     bench: BaseTabularBenchAPI,
@@ -112,9 +142,13 @@ def optimize_by_bo(
     kwargs = convert(bench.config_space)
     kwargs.update(minimize=bench.minimize)
 
+    hp_names = bench.hp_names
     gp_cls = RankingWeightedGaussianProcessEnsemble if metalearn_name == "rgpe" else TwoStageTransferWithRanking
     obj_func = bench.objective_func
     warmstart_configs = evaluate_warmstart_configs(bench, warmstart_configs)
+    search_space = bench._search_space
+    metadata = {tn: convert_to_index_config(data, search_space, hp_names) for tn, data in metadata.items()}
+    warmstart_configs = convert_to_index_config(warmstart_configs, search_space, hp_names)
 
     gp_model = gp_cls(
         init_data=warmstart_configs,  # Need obj
@@ -122,14 +156,19 @@ def optimize_by_bo(
         acq_fn_type=acq_name,
         **kwargs,
     )
-    opt = MetaLearnGPSampler(max_evals=100, obj_func=obj_func, model=gp_model, **kwargs)
+
+    def _wrapper_func(config):
+        eval_config = {k: v if k not in search_space else search_space[k][v] for k, v in config.items()}
+        return obj_func(eval_config)
+
+    opt = MetaLearnGPSampler(max_evals=1, obj_func=_wrapper_func, model=gp_model, **kwargs)
     opt.optimize()
-    return opt.observations
+    raise convert_to_original_config(data=opt.observations, search_space=search_space, hp_names=hp_names)
 
 
 def get_opt_name(args: Namespace) -> str:
     opt_name = args.opt_name
-    if args != "tpe":
+    if opt_name != "tpe":
         return opt_name
     if not args.warmstart:
         return "normal_tpe"
@@ -147,7 +186,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_name", type=str, choices=[c.name for c in HPOChoices] + [c.name for c in NMTChoices])
     parser.add_argument("--opt_name", choices=opt_names)
     parser.add_argument("--exp_id", type=int)
-    parser.add_argument("--uniform_transform", type=str, choices=["True", "False"], default="True")
+    parser.add_argument("--uniform_transform", type=str, choices=["True", "False"], default="False")
 
     # Only for ablation study
     parser.add_argument("--quantile", type=float, default=0.1)

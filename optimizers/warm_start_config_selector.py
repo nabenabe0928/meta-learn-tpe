@@ -42,7 +42,7 @@ def collect_metadata(
         else:
             bm = benchmark(dataset=dataset)
             opt = RandomOptimizer(
-                obj_func=bm.obj_func,
+                obj_func=bm.objective_func,
                 config_space=bm.config_space,
                 objective_names=bm.obj_names,
                 max_evals=max_evals,

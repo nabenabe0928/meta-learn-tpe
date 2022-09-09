@@ -43,10 +43,10 @@ class RandomOptimizer(BaseOptimizer):
         for hp_name, val in eval_config.items():
             self._observations[hp_name] = np.append(self._observations[hp_name], val)
 
-        for obj_name, val in results.keys():
+        for obj_name, val in results.items():
             self._observations[obj_name] = np.append(self._observations[obj_name], val)
 
-        self._observations[self._runtime_name] = np.append(self._observations, runtime)
+        self._observations[self._runtime_name] = np.append(self._observations[self._runtime_name], runtime)
 
     def fetch_observations(self) -> Dict[str, np.ndarray]:
         return {k: v.copy() for k, v in self._observations.items()}

@@ -20,6 +20,10 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
         seed: Optional[int] = None,
     ):
         self._module_path = hp_module_path
+        self._search_space = {
+            k: v["sequence"] for k, v in json.load(open(f"{self._module_path}/params.json")).items()
+            if not k.startswith("_")
+        }
         self._rng = np.random.RandomState(seed)
         self._obj_names = obj_names[:]
         js = open(f"{hp_module_path}/params.json")

@@ -84,7 +84,7 @@ class MetaLearnTPE(AbstractTPE):
             tpe_params.update(objective_names=objective_names)
             sampler_class = MultiObjectiveTPE
 
-        self._samplers[OBJECTIVE_KEY] = sampler_class(**tpe_params)
+        self._samplers[OBJECTIVE_KEY] = sampler_class(**tpe_params, quantile=self._quantile)
         for task_name, data in metadata.items():
             sampler = sampler_class(**tpe_params, quantile=self._quantile)
             sampler.apply_knowledge_augmentation(data)
