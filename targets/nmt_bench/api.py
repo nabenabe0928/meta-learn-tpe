@@ -67,7 +67,7 @@ class NMTBench(BaseTabularBenchAPI):
 
     def _create_config2id(self) -> None:
         dir_name = "config2id"
-        file_name = os.path.join(MODULE_PATH, dir_name, f"{self._dataset.value}.json")
+        file_name = os.path.join(MODULE_PATH, dir_name, f"{self._dataset.name}.json")
         if not os.path.exists(file_name):
             os.makedirs(os.path.join(MODULE_PATH, dir_name), exist_ok=True)
             config2id = self._compute_config2id()
