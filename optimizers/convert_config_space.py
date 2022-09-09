@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import ConfigSpace as CS
 
@@ -8,7 +8,7 @@ from optimizers.meta_learn_bo import HyperParameterType
 NumericType = Union[int, float]
 
 
-def convert(config_space: CS.ConfigurationSpace) -> None:
+def convert(config_space: CS.ConfigurationSpace) -> Dict[str, Any]:
     hp_info: Dict[str, HyperParameterType] = {}
     bounds: Dict[str, Tuple[NumericType, NumericType]] = {}
     categories: Dict[str, List[str]] = {}

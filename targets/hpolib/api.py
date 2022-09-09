@@ -163,3 +163,7 @@ class HPOBench(BaseTabularBenchAPI):
     @property
     def dataset(self) -> DatasetChoices:
         return self._dataset
+
+    @property
+    def minimize(self) -> Dict[str, bool]:
+        return {LOSS_KEY: True, RUNTIME_KEY: True}

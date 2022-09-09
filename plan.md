@@ -7,7 +7,6 @@ For each setting, run 20 times:
     * (1) TPE with uniform transfer (100 random samplings from each source + 100 observations)
     * (1) TPE (100 observations)
     * (4) Meta-learn BO (100 random samplings from each source + 100 observations)
-    * (2) BO (100 observations)
     * (1) Random search (100 observations)
 
 NOTE: BO means ParEGO and EHVI and meta-learn BO means RGPE and TSTR.

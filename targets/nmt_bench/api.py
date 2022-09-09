@@ -14,7 +14,7 @@ from targets.base_tabularbench_api import BaseTabularBenchAPI
 MODULE_PATH = "targets/nmt_bench"
 DATA_DIR = f'{os.environ["HOME"]}/tabular_benchmarks/nmt-bench'
 N_CONFIGS = 648
-LOSS_KEY = "bleu"
+PERF_KEY = "bleu"
 RUNTIME_KEY = "decoding_time"
 
 
@@ -40,7 +40,7 @@ class NMTBench(BaseTabularBenchAPI):
             hp_module_path=MODULE_PATH,
             dataset_name=dataset.name,
             seed=seed,
-            obj_names=[LOSS_KEY, RUNTIME_KEY],
+            obj_names=[PERF_KEY, RUNTIME_KEY],
         )
         self._search_space = {
             k: v["sequence"] for k, v in json.load(open(f"{MODULE_PATH}/params.json")).items() if not k.startswith("_")
@@ -81,16 +81,16 @@ class NMTBench(BaseTabularBenchAPI):
 
     def _compute_reference_point(self) -> Dict[str, float]:
         # smaller is better ==> larger is worse
-        _sign = {LOSS_KEY: -1, RUNTIME_KEY: 1}
+        _sign = {PERF_KEY: -1, RUNTIME_KEY: 1}
         return {
             obj_name: _sign[obj_name] * np.max(_sign[obj_name] * self._data[obj_name]) for obj_name in self._obj_names
         }
 
     def _compute_pareto_front(self) -> Dict[str, np.ndarray]:
-        costs = np.asarray([self._data[LOSS_KEY], self._data[RUNTIME_KEY]]).T
+        costs = np.asarray([self._data[PERF_KEY], self._data[RUNTIME_KEY]]).T
         pareto_mask = is_pareto_front(costs, larger_is_better_objectives=[0])
         front_sols = costs[pareto_mask]
-        pareto_front = {LOSS_KEY: front_sols[:, 0].tolist(), RUNTIME_KEY: front_sols[:, 1].tolist()}
+        pareto_front = {PERF_KEY: front_sols[:, 0].tolist(), RUNTIME_KEY: front_sols[:, 1].tolist()}
         return pareto_front
 
     def objective_func(self, config: Dict[str, Any]) -> Dict[str, float]:
@@ -106,3 +106,7 @@ class NMTBench(BaseTabularBenchAPI):
     @property
     def dataset(self) -> DatasetChoices:
         return self._dataset
+
+    @property
+    def minimize(self) -> Dict[str, bool]:
+        return {PERF_KEY: False, RUNTIME_KEY: True}

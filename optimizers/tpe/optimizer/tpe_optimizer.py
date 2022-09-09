@@ -22,7 +22,7 @@ class TPEOptimizer(BaseOptimizer):
         max_evals: int = 100,
         seed: Optional[int] = None,
         runtime_name: str = "iter_time",
-        only_requirements: bool = False,
+        only_requirements: bool = True,
         n_ei_candidates: int = 24,
         objective_names: List[str] = DEFAULT_OBJECTIVE_NAMES[:],
         constraints: Optional[Dict[str, float]] = None,
@@ -30,7 +30,7 @@ class TPEOptimizer(BaseOptimizer):
         min_bandwidth_factor: float = 1e-1,
         top: float = 1.0,
         warmstart_configs: Optional[Dict[str, np.ndarray]] = None,
-        random_ratio: Optional[float] = None,
+        random_ratio: Optional[float] = 0.05,
         minimize: Optional[Dict[str, bool]] = None,
         # The control parameters for experiments
         quantile: float = 0.1,

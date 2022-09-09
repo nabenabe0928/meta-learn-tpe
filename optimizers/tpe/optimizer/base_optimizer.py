@@ -97,7 +97,8 @@ class BaseOptimizer(metaclass=ABCMeta):
             eval_config = self.initial_sample() if t < self._n_init else self.sample()
             time2sample = time.time() - start
 
-            results, runtime = self._obj_func(eval_config)
+            results = self._obj_func(eval_config)
+            runtime = results["runtime"]
             self.update(eval_config=eval_config, results=results, runtime=runtime + time2sample)
 
             logger.info(f"Cur. results: {results}, Cur. Config: {eval_config}")

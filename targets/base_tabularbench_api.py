@@ -25,6 +25,7 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
         js = open(f"{hp_module_path}/params.json")
         search_space: Dict[str, ParameterSettings] = json.load(js)
         self._config_space = get_config_space(search_space, hp_module_path=".".join(hp_module_path.split("/")))
+        self._hp_names = [hp_name for hp_name in self._config_space]
 
     @abstractmethod
     def _compute_reference_point(self) -> Dict[str, float]:
@@ -97,7 +98,21 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
         return self._config_space
 
     @property
+    def obj_names(self) -> List[str]:
+        return self._obj_names[:]
+
+    @property
+    def hp_names(self) -> List[str]:
+        return self._hp_names[:]
+
+    @property
     @abstractmethod
     def data(self) -> Any:
         """API for the target dataset"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def minimize(self) -> Dict[str, bool]:
+        """Whether to minimize each objective"""
         raise NotImplementedError

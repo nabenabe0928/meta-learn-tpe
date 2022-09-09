@@ -1,6 +1,7 @@
 from optimizers.meta_learn_bo.models.rgpe import RankingWeightedGaussianProcessEnsemble
 from optimizers.meta_learn_bo.models.tstr import TwoStageTransferWithRanking
 from optimizers.meta_learn_bo.samplers.bo_sampler import MetaLearnGPSampler
+from optimizers.tpe.optimizer.random_optimizer import RandomOptimizer
 from optimizers.tpe.optimizer.tpe_optimizer import TPEOptimizer
 
 
@@ -13,6 +14,7 @@ __url__ = "https://github.com/nabenabe0928/meta-learn-tpe"
 
 __all__ = [
     "MetaLearnGPSampler",
+    "RandomOptimizer",
     "RankingWeightedGaussianProcessEnsemble",
     "TPEOptimizer",
     "TwoStageTransferWithRanking",
