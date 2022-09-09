@@ -74,7 +74,8 @@ class BaseSampler(metaclass=ABCMeta):
             eval_config = self.sample()
             results = self._obj_func(eval_config.copy())
 
-            if self._verbose:
+            # if self._verbose:
+            if (t + 1) % 20 == 0:
                 print(f"Iteration {t + 1}: eval_config={eval_config}, results={results}")
 
             self.update(eval_config=eval_config, results=results)

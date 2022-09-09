@@ -134,6 +134,17 @@ class HPOBench(BaseTabularBenchAPI):
 
     def objective_func(self, config: Dict[str, Any], budget: Dict[str, Any] = {}) -> Dict[str, float]:
         _budget = BudgetConfig(**budget)
+        type_dict = {
+            np.int32: int,
+            np.int64: int,
+            int: int,
+            np.float32: float,
+            np.float64: float,
+            float: float,
+            np.str_: str,
+            str: str,
+        }
+        config = {k: type_dict[type(v)](v) for k, v in config.items()}
         config = Hyperparameters(**config).__dict__
 
         idx = self.rng.randint(4)

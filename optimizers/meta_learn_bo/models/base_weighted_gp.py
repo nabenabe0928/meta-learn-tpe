@@ -343,7 +343,8 @@ class BaseWeightedGP(metaclass=ABCMeta):
             acq_fn_list=[self._acq_fns[task_name] for task_name in self._task_names],
             weights=self._task_weights,
         )
-        print(self._task_weights_repr())
+        if X_train.shape[0] % 20 == 0:
+            print(self._task_weights_repr())
 
     def _train(self, train_meta_model: bool = True) -> None:
         """

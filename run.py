@@ -1,3 +1,5 @@
+import os
+import sys
 from argparse import ArgumentParser, Namespace
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
@@ -67,19 +69,30 @@ def get_metadata_and_warm_start_configs(
         return None, None
 
 
+def format_configs(
+    configs: Dict[str, np.ndarray],
+    bench: BaseTabularBenchAPI,
+) -> Dict[str, np.ndarray]:
+    type_dict = {int: np.int32, float: np.float64}
+    configs = {
+        hp_name: configs[hp_name].astype(type_dict[type(bench._search_space[hp_name][0])])
+        if np.issubdtype(configs[hp_name].dtype, np.number)
+        else configs[hp_name]
+        for hp_name in bench.hp_names
+    }
+    return configs
+
+
 def evaluate_warmstart_configs(
     bench: BaseTabularBenchAPI,
     warmstart_configs: Dict[str, np.ndarray],
 ) -> Dict[str, np.ndarray]:
     hp_names, obj_names = bench.hp_names, bench.obj_names
     n_warmstart = warmstart_configs[hp_names[0]].size
+    warmstart_configs = format_configs(configs=warmstart_configs, bench=bench)
     warmstart_configs.update({obj_name: np.zeros(n_warmstart, dtype=np.float64) for obj_name in obj_names})
-    search_space = bench._search_space
     for i in range(n_warmstart):
-        config = {
-            hp_name: type(search_space[hp_name][0])(warmstart_configs[hp_name][i])
-            for hp_name in hp_names
-        }
+        config = {hp_name: warmstart_configs[hp_name][i] for hp_name in hp_names}
         results = obj_func(config)
         for obj_name, val in results.items():
             warmstart_configs[obj_name][i] = val
@@ -93,6 +106,9 @@ def optimize_by_tpe(
     metadata: Optional[Dict[str, Dict[str, np.ndarray]]],
     warmstart_configs: Optional[Dict[str, np.ndarray]],
 ) -> Dict[str, np.ndarray]:
+    if warmstart_configs is not None:
+        warmstart_configs = format_configs(configs=warmstart_configs, bench=bench)
+
     opt = TPEOptimizer(
         obj_func=bench.objective_func,
         config_space=bench.config_space,
@@ -165,7 +181,7 @@ def optimize_by_bo(
         eval_config = {k: v if isinstance(v, str) else search_space[k][v] for k, v in config.items()}
         return obj_func(eval_config)
 
-    opt = MetaLearnGPSampler(max_evals=1, obj_func=_wrapper_func, model=gp_model, **kwargs)
+    opt = MetaLearnGPSampler(max_evals=95, obj_func=_wrapper_func, model=gp_model, **kwargs)
     opt.optimize()
     return convert_to_original_config(data=opt.observations, search_space=search_space, hp_names=hp_names)
 
@@ -185,11 +201,13 @@ def get_opt_name(args: Namespace) -> str:
 if __name__ == "__main__":
     opt_names = ["tpe", "rgpe-parego", "rgpe-ehvi", "tstr-parego", "tstr-ehvi"]
     parser = ArgumentParser()
-    parser.add_argument("--warmstart", type=str, choices=["True", "False"])
-    parser.add_argument("--bench_name", type=str, choices=bench_names)
-    parser.add_argument("--dataset_name", type=str, choices=[c.name for c in HPOChoices] + [c.name for c in NMTChoices])
-    parser.add_argument("--opt_name", choices=opt_names)
-    parser.add_argument("--exp_id", type=int)
+    parser.add_argument("--warmstart", type=str, choices=["True", "False"], required=True)
+    parser.add_argument("--bench_name", type=str, choices=bench_names, required=True)
+    parser.add_argument(
+        "--dataset_name", type=str, choices=[c.name for c in HPOChoices] + [c.name for c in NMTChoices], required=True
+    )
+    parser.add_argument("--opt_name", choices=opt_names, required=True)
+    parser.add_argument("--exp_id", type=int, required=True)
     parser.add_argument("--uniform_transform", type=str, choices=["True", "False"], default="False")
 
     # Only for ablation study
@@ -199,6 +217,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.uniform_transform, args.warmstart = eval(args.uniform_transform), eval(args.warmstart)
     warmstart, bench_name, dataset_name = args.warmstart, args.bench_name, args.dataset_name
+
+    opt_name = get_opt_name(args)
+    file_path = get_result_file_path(dataset_name=dataset_name, opt_name=opt_name, seed=args.exp_id)
+    if os.path.exists(file_path):
+        print("Skip: Results already exist\n")
+        sys.exit()
 
     dataset_choices = dataset_choices_dict[bench_name]
     bench_cls = bench_dict[bench_name]
@@ -221,6 +245,4 @@ if __name__ == "__main__":
             opt_name=args.opt_name, bench=bench, metadata=metadata, warmstart_configs=warmstart_configs
         )
 
-    opt_name = get_opt_name(args)
-    file_path = get_result_file_path(dataset_name=dataset_name, opt_name=opt_name, seed=args.exp_id)
     save_observations(file_path=file_path, observations=results, include=bench.obj_names)
