@@ -291,10 +291,11 @@ def get_train_data(
     Y_train = torch.as_tensor(
         np.asarray([(1 - 2 * do_min) * observations[obj_name] for obj_name, do_min in minimize.items()])
     )
+    Y_mean = torch.mean(Y_train, dim=-1)
+    Y_std = torch.std(Y_train, dim=-1)
+    Y_train = (Y_train - Y_mean[:, None]) / Y_std[:, None]
     if weights is None:
-        Y_mean = torch.mean(Y_train, dim=-1)
-        Y_std = torch.std(Y_train, dim=-1)
-        return X_train, (Y_train - Y_mean[:, None]) / Y_std[:, None]
+        return X_train, Y_train
     else:  # scalarization
         Y_train = scalarize(Y_train=Y_train, weights=weights)
         Y_mean = torch.mean(Y_train)
@@ -497,7 +498,7 @@ def optimize_acq_fn(
             The config to evaluate.
             Dict[hp_name/obj_name, the corresponding param value].
     """
-    kwargs = dict(q=1, num_restarts=10, raw_samples=1 << 8, return_best_only=True)
+    kwargs = dict(q=1, num_restarts=5, raw_samples=1 << 8, return_best_only=True)
     standard_bounds = torch.zeros((2, len(hp_names)))
     standard_bounds[1] = 1
     if fixed_features_list is None:
