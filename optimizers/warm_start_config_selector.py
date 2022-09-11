@@ -40,12 +40,13 @@ def collect_metadata(
         if os.path.exists(file_path):
             data = {k: np.asarray(v) for k, v in json.load(open(file_path)).items()}
         else:
-            bm = benchmark(dataset=dataset)
+            bm = benchmark(dataset=dataset, seed=seed)
             opt = RandomOptimizer(
                 obj_func=bm.objective_func,
                 config_space=bm.config_space,
                 objective_names=bm.obj_names,
                 max_evals=max_evals,
+                seed=seed,
             )
             opt.optimize()
             data = opt.fetch_observations()

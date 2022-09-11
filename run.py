@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
     dataset_choices = dataset_choices_dict[bench_name]
     bench_cls = bench_dict[bench_name]
-    bench = bench_cls(dataset=getattr(dataset_choices, dataset_name))
+    bench = bench_cls(dataset=getattr(dataset_choices, dataset_name), seed=args.exp_id)
 
     obj_func = bench.objective_func
     config_space = bench.config_space
