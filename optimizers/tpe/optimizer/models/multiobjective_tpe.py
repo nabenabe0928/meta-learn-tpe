@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Optional
 
 import ConfigSpace as CS
 
@@ -7,6 +7,8 @@ from fast_pareto import is_pareto_front, nondominated_rank
 import numpy as np
 
 from optimizers.tpe.optimizer.models import BaseTPE
+
+from optimizers.tpe.utils.constants import TIE_BREAK_METHOD
 
 
 class MultiObjectiveTPE(BaseTPE):
@@ -66,7 +68,9 @@ class MultiObjectiveTPE(BaseTPE):
             idx for idx, obj_name in enumerate(self._objective_names) if not self._minimize[obj_name]
         ]
         self._nondominated_ranks = nondominated_rank(
-            costs, tie_break=True, larger_is_better_objectives=larger_is_better_objectives
+            costs,
+            tie_break=TIE_BREAK_METHOD,
+            larger_is_better_objectives=larger_is_better_objectives
         )
         self._n_fronts = np.sum(is_pareto_front(costs))
         self._order = np.argsort(self._nondominated_ranks)

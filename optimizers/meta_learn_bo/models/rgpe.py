@@ -10,6 +10,8 @@ import numpy as np
 
 import torch
 
+from optimizers.tpe.utils.constants import TIE_BREAK_METHOD
+
 
 def drop_ranking_loss(
     ranking_loss: torch.Tensor,
@@ -101,7 +103,7 @@ def leave_one_out_ranks(
         # predict returns the array with the shape of (batch, n_evals, n_objectives)
         loo_preds[idx] = sample(loo_model, x_test)[0][0].numpy()
 
-    return torch.tensor(nondominated_rank(costs=loo_preds, tie_break=True))
+    return torch.tensor(nondominated_rank(costs=loo_preds, tie_break=TIE_BREAK_METHOD))
 
 
 def compute_rank_weights(ranking_loss: torch.Tensor) -> torch.Tensor:
@@ -276,7 +278,7 @@ class RankingWeightedGaussianProcessEnsemble(BaseWeightedGP):
             state_dict=target_state_dict,
         )
         rank_preds = torch.vstack([ranks, loo_ranks])
-        rank_targets = nondominated_rank(Y_train.T.numpy(), tie_break=True)
+        rank_targets = nondominated_rank(Y_train.T.numpy(), tie_break=TIE_BREAK_METHOD)
         (n_tasks, n_evals) = ranks.shape
         bs_indices = self._rng.choice(n_evals, size=(self._n_bootstraps, n_evals), replace=True)
 
@@ -310,7 +312,7 @@ class RankingWeightedGaussianProcessEnsemble(BaseWeightedGP):
         for idx, task_name in enumerate(self._task_names[:-1]):
             model = self._base_models[task_name]
             # flip the sign because larger is better in base models
-            rank = nondominated_rank(-sample(model, X_train)[0].numpy(), tie_break=True)
+            rank = nondominated_rank(-sample(model, X_train)[0].numpy(), tie_break=TIE_BREAK_METHOD)
             ranks[idx] = torch.as_tensor(rank)
 
         ranking_loss = self._bootstrap(ranks=ranks, X_train=X_train, Y_train=Y_train)

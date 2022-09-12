@@ -221,7 +221,7 @@ if __name__ == "__main__":
     opt_name = get_opt_name(args)
     file_path = get_result_file_path(dataset_name=dataset_name, opt_name=opt_name, seed=args.exp_id)
     if os.path.exists(file_path):
-        print("Skip: Results already exist\n")
+        print(f"Skip: Results already exist in {file_path}\n")
         sys.exit()
 
     dataset_choices = dataset_choices_dict[bench_name]

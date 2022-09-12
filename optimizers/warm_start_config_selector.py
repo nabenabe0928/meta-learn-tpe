@@ -11,6 +11,8 @@ from optimizers import RandomOptimizer
 
 from targets.base_tabularbench_api import BaseTabularBenchAPI
 
+from optimizers.tpe.utils.constants import TIE_BREAK_METHOD
+
 
 def save_observations(file_path: str, observations: Dict[str, np.ndarray], include: Optional[List[str]] = None) -> None:
     subdirs = "/".join(file_path.split("/")[:-1])
@@ -71,7 +73,11 @@ def select_warm_start_configs(
     for data in metadata.values():
         costs = np.asarray([data[obj_name] for obj_name in obj_names]).T
         top_indices = np.argsort(
-            nondominated_rank(costs=costs, tie_break=True, larger_is_better_objectives=larger_is_better_objectives)
+            nondominated_rank(
+                costs=costs,
+                larger_is_better_objectives=larger_is_better_objectives,
+                tie_break=TIE_BREAK_METHOD,
+            )
         )[:n_top]
         for name in hp_names + obj_names:
             _configs[name].append(data[name][top_indices])

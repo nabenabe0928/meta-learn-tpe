@@ -9,6 +9,8 @@ import numpy as np
 
 import torch
 
+from optimizers.tpe.utils.constants import TIE_BREAK_METHOD
+
 
 def compute_ranking_loss(rank_preds: np.ndarray, rank_targets: np.ndarray, bandwidth: float) -> torch.Tensor:
     """
@@ -133,11 +135,11 @@ class TwoStageTransferWithRanking(BaseWeightedGP):
         rank_preds = np.asarray(
             [
                 # flip the sign because larger is better in base models
-                nondominated_rank(-sample(self._base_models[task_name], X_train)[0].numpy(), tie_break=True)
+                nondominated_rank(-sample(self._base_models[task_name], X_train)[0].numpy(), tie_break=TIE_BREAK_METHOD)
                 for task_name in self._task_names[:-1]
             ]
         )
-        rank_targets = nondominated_rank(Y_train.T.numpy(), tie_break=True)
+        rank_targets = nondominated_rank(Y_train.T.numpy(), tie_break=TIE_BREAK_METHOD)
         ranking_loss = compute_ranking_loss(rank_preds=rank_preds, rank_targets=rank_targets, bandwidth=self._bandwidth)
         ts = torch.minimum(ranking_loss, torch.tensor(1.0))
 
