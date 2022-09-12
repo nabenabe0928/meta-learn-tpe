@@ -13,7 +13,7 @@ SEARCH_SPACE = {
 }
 CRASH_VALS = {
     "bleu": 0.0,
-    "decoding_time": 1e9,
+    "decoding_time": 1500.0,
     # "perplexity": 1e9,
     # "n_updates": 1e9,
     # "gpu_memory": 1e9,
