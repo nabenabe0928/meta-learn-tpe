@@ -26,6 +26,9 @@ from targets.nmt_bench.api import DatasetChoices as NMTChoices
 from targets.nmt_bench.api import NMTBench
 
 
+N_METADATA = 200
+MAX_EVALS = 100
+N_INIT = MAX_EVALS * 5 // 100  # From the TPE 2013 paper
 bench_names = ["nmt", "hpolib"]
 dataset_choices_dict = {
     bench_names[0]: NMTChoices,
@@ -46,17 +49,16 @@ def get_metadata_and_warm_start_configs(
     seed: int,
 ) -> Tuple[Optional[Dict[str, Dict[str, np.ndarray]]], Optional[Dict[str, np.ndarray]]]:
     if warmstart:
-        # TODO: Save the metadata for the reuse
         metadata = collect_metadata(
             benchmark=bench_cls,
             dataset_choices=dataset_choices,
-            max_evals=100,
+            max_evals=N_METADATA,
             seed=seed,
             exclude=dataset_name,
         )
         warmstart_configs = select_warm_start_configs(
             metadata=metadata,
-            n_configs=5,
+            n_configs=N_INIT,
             hp_names=bench.hp_names,
             obj_names=bench.obj_names,
             seed=seed,
@@ -113,7 +115,7 @@ def optimize_by_tpe(
         obj_func=bench.objective_func,
         config_space=bench.config_space,
         objective_names=bench.obj_names,
-        max_evals=100,
+        max_evals=MAX_EVALS,
         minimize=bench.minimize,
         metadata=metadata,
         warmstart_configs=warmstart_configs,
@@ -212,7 +214,7 @@ if __name__ == "__main__":
 
     # Only for ablation study
     parser.add_argument("--quantile", type=float, default=0.1)
-    parser.add_argument("--dim_reduction_factor", type=float, default=5.0)
+    parser.add_argument("--dim_reduction_factor", type=float, default=3.0)
 
     args = parser.parse_args()
     args.uniform_transform, args.warmstart = eval(args.uniform_transform), eval(args.warmstart)

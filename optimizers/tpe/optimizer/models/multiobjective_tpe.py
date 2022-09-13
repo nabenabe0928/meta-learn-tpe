@@ -1,4 +1,4 @@
-from typing import Dict, Final, List, Optional
+from typing import Dict, List, Optional
 
 import ConfigSpace as CS
 
