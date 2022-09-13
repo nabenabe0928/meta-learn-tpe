@@ -498,7 +498,7 @@ def optimize_acq_fn(
             The config to evaluate.
             Dict[hp_name/obj_name, the corresponding param value].
     """
-    kwargs = dict(q=1, num_restarts=5, raw_samples=1 << 8, return_best_only=True)
+    kwargs = dict(q=1, num_restarts=1, raw_samples=1 << 8, return_best_only=True)
     standard_bounds = torch.zeros((2, len(hp_names)))
     standard_bounds[1] = 1
     if fixed_features_list is None:
