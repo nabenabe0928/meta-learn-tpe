@@ -5,6 +5,8 @@ fast-pareto
 hpo-task-similarity
 empirical-attainment-func
 h5py
+pyarrow
+pandas
 
 # Meta-learn BO
 botorch

@@ -57,7 +57,7 @@ class NMTBench(BaseTabularBenchAPI):
 
         return config_id
 
-    def _compute_config2id(self) -> None:
+    def _compute_config2id(self) -> Dict[int, int]:
         config2id: Dict[int, int] = {}
         for n in range(N_CONFIGS):
             config_id = self._encode_config({k: self._data[k][n] for k in self._hp_names})
@@ -65,7 +65,7 @@ class NMTBench(BaseTabularBenchAPI):
 
         return config2id
 
-    def _create_config2id(self) -> None:
+    def _create_config2id(self) -> Dict[int, int]:
         dir_name = "config2id"
         file_name = os.path.join(MODULE_PATH, dir_name, f"{self._dataset.name}.json")
         if not os.path.exists(file_name):

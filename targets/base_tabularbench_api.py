@@ -1,5 +1,6 @@
 import os
 from abc import abstractmethod, ABCMeta
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -51,7 +52,7 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
     def find_reference_point(self) -> Dict[str, float]:
         """The worst values for each objective"""
         dir_name = "reference-point"
-        file_name = os.path.join(self._module_path, dir_name, f"{self._dataset.name}.json")
+        file_name = os.path.join(self._module_path, dir_name, f"{self.dataset.name}.json")
         if not os.path.exists(file_name):
             os.makedirs(os.path.join(self._module_path, dir_name), exist_ok=True)
             ref_point = self._compute_reference_point()
@@ -69,7 +70,7 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
                 Dict[obj_name, obj array].
         """
         dir_name = "pareto-fronts"
-        file_name = os.path.join(self._module_path, dir_name, f"{self._dataset.name}.json")
+        file_name = os.path.join(self._module_path, dir_name, f"{self.dataset.name}.json")
         if not os.path.exists(file_name):
             os.makedirs(os.path.join(self._module_path, dir_name), exist_ok=True)
             pareto_front = self._compute_pareto_front()
@@ -120,4 +121,9 @@ class BaseTabularBenchAPI(metaclass=ABCMeta):
     @abstractmethod
     def minimize(self) -> Dict[str, bool]:
         """Whether to minimize each objective"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def dataset(self) -> Enum:
         raise NotImplementedError

@@ -66,7 +66,7 @@ class DatasetChoices(Enum):
     parkinsons_telemonitoring = "fcnet_parkinsons_telemonitoring_data.hdf5"
 
 
-class HPOBench(BaseTabularBenchAPI):
+class HPOLib(BaseTabularBenchAPI):
     """
     Download the datasets via:
         $ wget http://ml4aad.org/wp-content/uploads/2019/01/fcnet_tabular_benchmarks.tar.gz

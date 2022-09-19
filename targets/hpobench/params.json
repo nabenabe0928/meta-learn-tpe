@@ -1,0 +1,118 @@
+{
+    "_comment": {
+        "lower": "The lower bound of parameters",
+        "upper": "The upper bound of parameters",
+        "param_type": "int, float, str, bool",
+        "log": "scale: If True, log, otherwise uniform",
+        "q": "The quantization parameter",
+        "sequence": "List of numbers that can be taken",
+        "choices": "The choices for categorical parameters",
+        "dataclass": "The choices for categorical parameters in dataclass",
+        "ignore": "Whether we ignore this parameter or not",
+        "default_value": "The default value for this parameter",
+        "meta": "Meta information such as log-scale for ordinal"
+    },
+    "alpha": {
+        "param_type": "float",
+        "sequence": [
+            1e-8,
+            7.742637e-8,
+            5.994842e-7,
+            4.641589e-6,
+            3.5938137e-5,
+            2.7825593e-4,
+            2.1544348e-3,
+            1.6681006e-2,
+            1.2915497e-1,
+            1
+        ],
+        "ignore": "False",
+        "default_value": 3.5938137e-5,
+        "meta": {
+            "lower": 1e-8,
+            "upper": 1,
+            "log": "True"
+        }
+    },
+    "batch_size": {
+        "param_type": "int",
+        "sequence": [
+            4,
+            6,
+            10,
+            16,
+            25,
+            40,
+            64,
+            101,
+            161,
+            256
+        ],
+        "ignore": "False",
+        "default_value": 25,
+        "meta": {
+            "lower": 4,
+            "upper": 256,
+            "log": "True"
+        }
+    },
+    "depth": {
+        "param_type": "int",
+        "sequence": [
+            1,
+            2,
+            3
+        ],
+        "ignore": "False",
+        "default_value": 2,
+        "meta": {
+            "lower": 1,
+            "upper": 3,
+            "log": "False"
+        }
+    },
+    "learning_rate_init": {
+        "param_type": "float",
+        "sequence": [
+            1e-5,
+            3.5938137e-5,
+            1.2915497e-4,
+            4.641589e-4,
+            1.6681006e-3,
+            5.9948424e-3,
+            2.1544347e-2,
+            7.742637e-2,
+            2.7825594e-1,
+            1
+        ],
+        "ignore": "False",
+        "default_value": 1.6681006e-3,
+        "meta": {
+            "lower": 1e-5,
+            "upper": 1,
+            "log": "True"
+        }
+    },
+    "width": {
+        "param_type": "int",
+        "sequence": [
+            16,
+            25,
+            40,
+            64,
+            101,
+            161,
+            256,
+            406,
+            645,
+            1024
+        ],
+        "ignore": "False",
+        "default_value": 101,
+        "meta": {
+            "lower": 16,
+            "upper": 1024,
+            "log": "True"
+        }
+    }
+}
