@@ -9,7 +9,7 @@ import numpy as np
 
 import pyarrow.parquet as pq  # type: ignore
 
-from targets.hpolib.hyperparameters import Hyperparameters
+from targets.hpobench.hyperparameters import Hyperparameters
 from targets.base_tabularbench_api import BaseTabularBenchAPI
 
 

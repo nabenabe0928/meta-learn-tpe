@@ -1,6 +1,4 @@
 import os
-from argparse import ArgumentParser, Namespace
-from enum import Enum
 from logging import basicConfig, getLogger, DEBUG, FileHandler, Formatter, Logger
 from typing import Any, Dict, List, Literal, Optional, Type, TypedDict, Union
 
@@ -13,7 +11,6 @@ import ConfigSpace.hyperparameters as CSH
 
 from targets.constants import (
     CategoricalHPType,
-    DOMAIN_SIZE_CHOICES,
     NumericalHPType,
     NumericType,
     config2type,
@@ -43,40 +40,6 @@ class ParameterSettings(TypedDict):
     dataclass: Optional[str]  # The choices for categorical parameters in dataclass
     default_value: Optional[Union[NumericType, str]]  # The default value for this parameter
     meta: Optional[MetaInformation]  # Any information that is useful
-
-
-def get_args_from_parser(Choices: Enum, opts: Dict) -> Namespace:
-    parser = ArgumentParser()
-    parser.add_argument("--opt_name", choices=list(opts.keys()), default="tpe")
-    parser.add_argument("--exp_id", type=int, default=0)
-    parser.add_argument("--max_evals", type=int, default=100)
-    parser.add_argument("--feasible_domain", type=int, choices=DOMAIN_SIZE_CHOICES, default=10)
-    parser.add_argument("--knowledge_augmentation", type=str, choices=["True", "False"], default="False")
-    parser.add_argument("--constraint", type=str, choices=["True", "False"], default="True")
-    parser.add_argument("--constraint_mode", type=int, choices=[0, 1, 2], default=0)
-
-    default_choice = getattr(Choices, Choices._member_names_[0]).name
-    parser.add_argument("--dataset", choices=list([c.name for c in Choices]), default=default_choice)  # type: ignore
-
-    args = parser.parse_args()
-    args.knowledge_augmentation = eval(args.knowledge_augmentation)
-    args.constraint = eval(args.constraint)
-
-    return args
-
-
-def get_filename_from_args(bench_name: str, constraints: List[Enum], args: Namespace) -> str:
-    knowledge_augmentation = "KA_" if args.knowledge_augmentation else ""
-    constraint = "" if args.constraint else "vanilla_"
-
-    constraint_dict = {"n_params": "n_params", "size_in_mb": "n_params", "runtime": "runtime"}
-    constraint_name = ",".join([constraint_dict[c.name] for c in constraints])
-
-    name = (
-        f"{constraint_name}/{bench_name}/{args.dataset}/feasible_{args.feasible_domain:0>3}per"
-        f"/{constraint}{knowledge_augmentation}{args.opt_name}/{args.exp_id:0>3}"
-    )
-    return name
 
 
 def get_hyperparameter_module(hp_module_path: str) -> Any:
