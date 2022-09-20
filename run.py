@@ -20,8 +20,10 @@ from optimizers.warm_start_config_selector import (
 )
 
 from targets.base_tabularbench_api import BaseTabularBenchAPI
-from targets.hpolib.api import DatasetChoices as HPOChoices
-from targets.hpolib.api import HPOBench
+from targets.hpobench.api import DatasetChoices as HPOBenchChoices
+from targets.hpobench.api import HPOBench
+from targets.hpolib.api import DatasetChoices as HPOLibChoices
+from targets.hpolib.api import HPOLib
 from targets.nmt_bench.api import DatasetChoices as NMTChoices
 from targets.nmt_bench.api import NMTBench
 
@@ -29,14 +31,16 @@ from targets.nmt_bench.api import NMTBench
 N_METADATA = 200
 MAX_EVALS = 100
 N_INIT = MAX_EVALS * 5 // 100  # From the TPE 2013 paper
-bench_names = ["nmt", "hpolib"]
+bench_names = ["nmt", "hpolib", "hpobench"]
 dataset_choices_dict = {
     bench_names[0]: NMTChoices,
-    bench_names[1]: HPOChoices,
+    bench_names[1]: HPOLibChoices,
+    bench_names[2]: HPOBenchChoices,
 }
 bench_dict = {
     bench_names[0]: NMTBench,
-    bench_names[1]: HPOBench,
+    bench_names[1]: HPOLib,
+    bench_names[2]: HPOBench,
 }
 
 
@@ -44,7 +48,7 @@ def get_metadata_and_warm_start_configs(
     warmstart: bool,
     bench: BaseTabularBenchAPI,
     bench_cls: Type[BaseTabularBenchAPI],
-    dataset_choices: Union[HPOChoices, NMTChoices],
+    dataset_choices: Union[HPOLibChoices, NMTChoices, HPOBenchChoices],
     dataset_name: str,
     seed: int,
 ) -> Tuple[Optional[Dict[str, Dict[str, np.ndarray]]], Optional[Dict[str, np.ndarray]]]:
@@ -193,9 +197,9 @@ def get_opt_name(args: Namespace) -> str:
     if opt_name != "tpe":
         return opt_name
     if not args.warmstart:
-        return "normal_tpe"
+        return f"normal_tpe_q={args.quantile:.2f}"
     if args.uniform_transform:
-        return "naive_metalearn_tpe"
+        return f"naive_metalearn_tpe_q={args.quantile:.2f}"
 
     return f"tpe_q={args.quantile:.2f}_df={args.dim_reduction_factor:.0f}"
 
@@ -205,9 +209,8 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--warmstart", type=str, choices=["True", "False"], required=True)
     parser.add_argument("--bench_name", type=str, choices=bench_names, required=True)
-    parser.add_argument(
-        "--dataset_name", type=str, choices=[c.name for c in HPOChoices] + [c.name for c in NMTChoices], required=True
-    )
+    dataset_choices = [c.name for c in HPOLibChoices] + [c.name for c in NMTChoices] + [c.name for c in HPOBenchChoices]
+    parser.add_argument("--dataset_name", type=str, choices=dataset_choices, required=True)
     parser.add_argument("--opt_name", choices=opt_names, required=True)
     parser.add_argument("--exp_id", type=int, required=True)
     parser.add_argument("--uniform_transform", type=str, choices=["True", "False"], default="False")

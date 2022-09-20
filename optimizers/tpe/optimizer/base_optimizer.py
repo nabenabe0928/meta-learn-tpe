@@ -91,7 +91,7 @@ class BaseOptimizer(metaclass=ABCMeta):
         logger_name = logger_name if use_logger else "temp"
         logger = get_logger(logger_name, logger_name, disable=(not use_logger))
         t = 0
-        runtime_key = [name for name in self._objective_names if "time" in name][0]
+        # runtime_key = [name for name in self._objective_names if "time" in name][0]
 
         while True:
             logger.info(f"\nIteration: {t + 1}")
@@ -100,8 +100,8 @@ class BaseOptimizer(metaclass=ABCMeta):
             time2sample = time.time() - start
 
             results = self._obj_func(eval_config)
-            runtime = results[runtime_key]
-            self.update(eval_config=eval_config, results=results, runtime=runtime + time2sample)
+            # runtime = results[runtime_key]
+            self.update(eval_config=eval_config, results=results, runtime=time2sample)
 
             logger.info(f"Cur. results: {results}, Cur. Config: {eval_config}")
             t += 1

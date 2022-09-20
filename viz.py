@@ -20,17 +20,23 @@ N_INIT = N_SAMPLES * 5 // 100
 N_RUNS = 20
 N_OBJ = 2
 COSTS_SHAPE = (N_RUNS, N_SAMPLES, N_OBJ)
-# LEVELS = [N_RUNS // 4, N_RUNS // 2, (3 * N_RUNS) // 4]
-LEVELS = [N_RUNS // 2] * 3
-WARMSTART_OPT = "tpe_q=0.10_df=3"
+LEVELS = [N_RUNS // 4, N_RUNS // 2, (3 * N_RUNS) // 4]
+# LEVELS = [N_RUNS // 2] * 3
+HV_MODE = False
+Q, DF = 0.10, 2
+WARMSTART_OPT = f"tpe_q={Q:.2f}_df={DF}"
 COLOR_LABEL_DICT = {
     "random": ("olive", "Random"),
-    "naive_metalearn_tpe": ("green", "Uniform weight"),
-    "normal_tpe": ("blue", "MOTPE BW0.5"),
-    "tpe_q=0.10_df=3": ("red", "Meta-learn TPE df=4"),
+    f"naive_metalearn_tpe_q={Q:.2f}": ("green", "Uniform weight"),
+    f"normal_tpe_q={Q:.2f}": ("blue", "MOTPE"),
+    f"tpe_q={Q:.2f}_df={DF}": ("red", f"Meta-learn TPE df={DF}"),
     "warmstart_config": ("black", "Warmstart configs"),
+    "tstr-ehvi": ("cyan", "TST-R EHVI"),
+    "tstr-parego": ("magenta", "TST-R ParEGO"),
+    "rgpe-ehvi": ("purple", "RGPE EHVI"),
+    "rgpe-parego": ("brown", "RGPE ParEGO"),
 }
-BENCH_NAMES = ["hpolib", "nmt"]
+BENCH_NAMES = ["hpolib", "nmt", "hpobench"]
 DATASET_NAMES = {
     "hpolib": [
         "naval_propulsion",
@@ -43,18 +49,31 @@ DATASET_NAMES = {
         "sw_en",
         "tl_en",
     ],
+    "hpobench": [
+        "credit_g",
+        "vehicle",
+        "kc1",
+        "phoneme",
+        "blood_transfusion",
+        "australian",
+        "car",
+        "segment",
+    ]
 }
 OBJ_NAMES_DICT = {
     "hpolib": ["runtime", "valid_mse"],
     "nmt": ["decoding_time", "bleu"],
+    "hpobench": ["precision", "bal_acc"]
 }
 LARGER_IS_BETTER_DICT = {
     "hpolib": None,
     "nmt": [1],
+    "hpobench": [0, 1],
 }
 LOGSCALE_DICT = {
     "hpolib": [1],
     "nmt": None,
+    "hpobench": None,
 }
 
 
@@ -146,7 +165,8 @@ def plot_hv(
         axins = zoomed_inset_axes(ax, zoom=2, loc="upper right")
         eaf_plot.plot_multiple_hypervolume2d_with_band(axins, costs_array, colors, labels, log=log)
         axins.set_xlim(90, 100)
-        axins.set_ylim(y_min, y_max)
+        buffer = (y_max - y_min) * 0.1
+        axins.set_ylim(y_min - buffer, y_max + buffer)
         return lines, labels
 
 
@@ -179,12 +199,14 @@ def plot(
 
 
 if __name__ == "__main__":
-    hv_mode = False
-    for bench_id, n in enumerate([4, 3]):
-        _, axes = plt.subplots(nrows=2, ncols=2)
+    for bench_id, n in enumerate([4, 3, 8]):
+        if n <= 4:
+            _, axes = plt.subplots(nrows=2, ncols=2)
+        else:
+            _, axes = plt.subplots(nrows=4, ncols=2)
         for data_id in range(n):
             r, c = data_id // 2, data_id % 2
-            lines, labels = plot(axes[r][c], bench_id=bench_id, data_id=data_id, hv_mode=hv_mode)
+            lines, labels = plot(axes[r][c], bench_id=bench_id, data_id=data_id, hv_mode=HV_MODE)
         else:
             axes[-1][0].legend(
                 handles=lines,

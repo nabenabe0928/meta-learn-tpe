@@ -9,7 +9,7 @@ import numpy as np
 
 import pyarrow.parquet as pq  # type: ignore
 
-from targets.hpobench.hyperparameters import Hyperparameters
+from targets.hpobench.hyperparameters import Hyperparameters, KEY_ORDER
 from targets.base_tabularbench_api import BaseTabularBenchAPI
 
 
@@ -141,14 +141,15 @@ class HPOBench(BaseTabularBenchAPI):
         config["seed"] = AVAIL_SEEDS[self.rng.randint(5)]
 
         idx = 0
-        for k, v in config.items():
-            idx = self._data[k].index(v, start=idx).as_py()
+        for k in KEY_ORDER:
+            idx = self._data[k].index(config[k], start=idx).as_py()
 
-        query = self._data.take([idx]).to_pydict()["result"][0]["info"]["val_scores"]
+        query = self._data.take([idx]).to_pydict()
         _validate_query(query, config)
+        val_scores: TabularDataRowType = query["result"][0]["info"]["val_scores"]
         results: Dict[str, float] = {
-            PERF_KEY: query[PERF_KEY][0],
-            PREC_KEY: query[PREC_KEY][0],
+            PERF_KEY: val_scores[PERF_KEY],
+            PREC_KEY: val_scores[PREC_KEY],
         }
         return results
 

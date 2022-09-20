@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 
 
+# NOTE: This order must be always same for the query
+KEY_ORDER = ["alpha", "batch_size", "depth", "learning_rate_init", "width", "seed"]
+
+
 @dataclass
 class Hyperparameters:
     # Architecture parameters
