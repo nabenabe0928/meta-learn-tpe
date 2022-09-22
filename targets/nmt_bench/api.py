@@ -7,7 +7,7 @@ from fast_pareto import is_pareto_front
 
 import numpy as np
 
-from targets.nmt_bench.hyperparameters import Hyperparameters
+from targets.nmt_bench.hyperparameters import Hyperparameters, KEY_ORDER
 from targets.base_tabularbench_api import BaseTabularBenchAPI
 
 
@@ -44,37 +44,20 @@ class NMTBench(BaseTabularBenchAPI):
         )
         self._hp_names = list(self._search_space.keys())
         self._path = path
-        self._data = {k: np.asarray(v) for k, v in json.load(open(os.path.join(path, dataset.value))).items()}
-        self._dataset = dataset
-        self._config2id = self._create_config2id()
 
-    def _encode_config(self, config: Dict[str, Any]) -> int:
-        config_id, base = 0, 1
-        for dim, hp_name in enumerate(self._hp_names):
+        config2id_key = "config_id_to_idx"
+        json_data = json.load(open(os.path.join(path, dataset.value)))
+        self._data = {k: np.asarray(v) for k, v in json_data.items() if k != config2id_key}
+        self._dataset = dataset
+        self._config2id = json_data[config2id_key]
+
+    def _encode_config(self, config: Dict[str, Any]) -> str:
+        config_id = ""
+        for hp_name in KEY_ORDER:
             idx = self._search_space[hp_name].index(config[hp_name])
-            config_id += base * idx
-            base *= 10
+            config_id += str(idx)
 
         return config_id
-
-    def _compute_config2id(self) -> Dict[int, int]:
-        config2id: Dict[int, int] = {}
-        for n in range(N_CONFIGS):
-            config_id = self._encode_config({k: self._data[k][n] for k in self._hp_names})
-            config2id[config_id] = n
-
-        return config2id
-
-    def _create_config2id(self) -> Dict[int, int]:
-        dir_name = "config2id"
-        file_name = os.path.join(MODULE_PATH, dir_name, f"{self._dataset.name}.json")
-        if not os.path.exists(file_name):
-            os.makedirs(os.path.join(MODULE_PATH, dir_name), exist_ok=True)
-            config2id = self._compute_config2id()
-            with open(file_name, mode="w") as f:
-                json.dump(config2id, f, indent=4)
-
-        return {int(k): v for k, v in json.load(open(file_name)).items()}
 
     def _compute_reference_point(self) -> Dict[str, float]:
         # smaller is better ==> larger is worse
