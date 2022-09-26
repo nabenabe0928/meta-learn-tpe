@@ -37,8 +37,10 @@ from utils import get_costs, get_true_pareto_front_and_ref_point
 
 
 plt.rcParams["font.family"] = "Times New Roman"
-plt.rcParams["font.size"] = 14
+plt.rcParams["font.size"] = 18
 plt.rcParams["mathtext.fontset"] = "stix"  # The setting of math font
+PLOT_CHECK_MODE = False
+HV_MODE = True
 
 
 def disable_axis_label(
@@ -72,7 +74,7 @@ def add_inset_axis_for_eaf(
 
     eaf_plot.plot_multiple_surface_with_band(axins, surfs_list=surfs_list, **plot_kwargs)
     label = "True Pareto front"
-    eaf_plot.plot_true_pareto_surface(axins, color="black", label=label, linestyle="--", marker="*")
+    eaf_plot.plot_true_pareto_surface(axins, color="black", label=label, linestyle="--", marker="*", alpha=0.2)
 
     axins.set_xlim(EAF_INSET_XLIM_DICT[dataset_name])
     axins.set_ylim(EAF_INSET_YLIM_DICT[dataset_name])
@@ -110,7 +112,9 @@ def plot_eaf(
         )
         lines = eaf_plot.plot_multiple_surface_with_band(ax, surfs_list=surfs_list, **plot_kwargs)
         label = "True Pareto front"
-        lines.append(eaf_plot.plot_true_pareto_surface(ax, color="black", label=label, linestyle="--", marker="*"))
+        lines.append(eaf_plot.plot_true_pareto_surface(
+            ax, color="black", label=label, linestyle="--", marker="*", alpha=0.2
+        ))
         labels.append(label)
 
         if not dataset_name.endswith("_en"):
@@ -163,10 +167,9 @@ def plot_hv(
     **kwargs
 ) -> Tuple[List[Any], List[str]]:
 
-    color_label_dict = {k: v for k, v in COLOR_LABEL_DICT.items() if k != "warmstart_config"}
-    n_opts = len(color_label_dict)
+    n_opts = len(COLOR_LABEL_DICT)
     costs_array, colors, labels, markers, linestyles = np.empty((n_opts, *COSTS_SHAPE)), [], [], [], []
-    for idx, (opt_name, color_label) in enumerate(color_label_dict.items()):
+    for idx, (opt_name, color_label) in enumerate(COLOR_LABEL_DICT.items()):
         color, label = color_label
         colors.append(color)
         labels.append(label)
@@ -238,12 +241,18 @@ def plot_hv_for_hpolib(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
         )
         lines, labels = plot(axes[r][c], **kwargs)
     else:
-        axes[-1][0].legend(handles=lines, labels=labels, ncol=len(labels), **legend_kwargs)
+        axes[-1][0].legend(handles=lines, labels=labels, ncol=(len(labels) + 1) // 2, **legend_kwargs)
 
     if hv_mode:
-        plt.savefig("figs/hv2d-hpolib.pdf", bbox_inches='tight')
+        if PLOT_CHECK_MODE:
+            plt.show()
+        else:
+            plt.savefig("figs/hv2d-hpolib.pdf", bbox_inches='tight')
     else:
-        plt.savefig("figs/eaf-hpolib.pdf", bbox_inches='tight')
+        if PLOT_CHECK_MODE:
+            plt.show()
+        else:
+            plt.savefig("figs/eaf-hpolib.pdf", bbox_inches='tight')
 
 
 def plot_hv_for_nmt(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
@@ -259,16 +268,21 @@ def plot_hv_for_nmt(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
         )
         lines, labels = plot(axes[data_id], **kwargs)
     else:
-        axes[1].legend(handles=lines, labels=labels, ncol=len(labels), **legend_kwargs)
+        axes[1].legend(handles=lines, labels=labels, ncol=(len(labels) + 1) // 2, **legend_kwargs)
 
     if hv_mode:
-        plt.savefig("figs/hv2d-nmt.pdf", bbox_inches='tight')
+        if PLOT_CHECK_MODE:
+            plt.show()
+        else:
+            plt.savefig("figs/hv2d-nmt.pdf", bbox_inches='tight')
     else:
-        plt.savefig("figs/eaf-nmt.pdf", bbox_inches='tight')
+        if PLOT_CHECK_MODE:
+            plt.show()
+        else:
+            plt.savefig("figs/eaf-nmt.pdf", bbox_inches='tight')
 
 
 if __name__ == "__main__":
-    HV_MODE = False
     os.makedirs("figs/", exist_ok=True)
     subplots_kwargs = dict(
         nrows=2,
@@ -277,20 +291,20 @@ if __name__ == "__main__":
         sharey=HV_MODE,
         figsize=(20, 10),
         gridspec_kw=dict(
-            wspace=0.05 if HV_MODE else 0.08,
-            hspace=0.125 if HV_MODE else 0.17,
+            wspace=0.03 if HV_MODE else 0.09,
+            hspace=0.125 if HV_MODE else 0.2,
         )
     )
     legend_kwargs = dict(
         loc='upper center',
-        fontsize=14 if HV_MODE else 12,
-        bbox_to_anchor=(0.98, -0.15),
+        fontsize=20,
+        bbox_to_anchor=(1.0, -0.16) if HV_MODE else (1.03, -0.16),
         fancybox=False,
         shadow=False,
     )
-    # plot_hv_for_hpolib(subplots_kwargs, legend_kwargs, hv_mode=HV_MODE)
+    plot_hv_for_hpolib(subplots_kwargs, legend_kwargs, hv_mode=HV_MODE)
 
     subplots_kwargs.pop("nrows")
-    subplots_kwargs.update(ncols=3, figsize=(30, 5))
-    legend_kwargs.update(bbox_to_anchor=(0.5, -0.12), fontsize=18)
+    subplots_kwargs.update(ncols=3, figsize=(15, 3) if HV_MODE else (20, 3.5))
+    legend_kwargs.update(bbox_to_anchor=(0.5, -0.3) if HV_MODE else (0.5, -0.22), fontsize=18)
     plot_hv_for_nmt(subplots_kwargs, legend_kwargs, hv_mode=HV_MODE)

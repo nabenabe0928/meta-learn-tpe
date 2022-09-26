@@ -12,22 +12,25 @@ run_tpe () {
 
     for quantile in 0.10 0.15
     do
-        cmd="${prefix} --warmstart True --uniform_transform True --quantile ${quantile}"
+        cmd="${prefix} --warmstart False --metalearn False --quantile ${quantile}"
         echo $cmd
         $cmd
         echo `date '+%y/%m/%d %H:%M:%S'`
 
-        cmd="${prefix} --warmstart False --quantile ${quantile}"
-        echo $cmd
-        $cmd
-        echo `date '+%y/%m/%d %H:%M:%S'`
-
-        for df in `seq 2 4`
+        for warmstart in True False
         do
-            cmd="${prefix} --warmstart True --dim_reduction_factor ${df} --quantile ${quantile}"
+            cmd="${prefix} --warmstart ${warmstart} --metalearn True --uniform_transform True --quantile ${quantile}"
             echo $cmd
             $cmd
             echo `date '+%y/%m/%d %H:%M:%S'`
+
+            for df in 1.5 2 2.5 3 3.5 4 4.5 5
+            do
+                cmd="${prefix} --warmstart ${warmstart} --metalearn True --dim_reduction_factor ${df} --quantile ${quantile}"
+                echo $cmd
+                $cmd
+                echo `date '+%y/%m/%d %H:%M:%S'`
+            done
         done
     done
 }
@@ -36,17 +39,20 @@ run_bench () {
     seed=${1}
     bench_name=${2}
     dataset_name=${3}
-    for opt_name in tpe rgpe-parego rgpe-ehvi tstr-parego tstr-ehvi
+    for opt_name in tpe only-warmstart rgpe-parego rgpe-ehvi tstr-parego tstr-ehvi
     do
         prefix="python run.py --exp_id ${seed} --opt_name ${opt_name} --bench_name ${bench_name} --dataset_name ${dataset_name}"
         if [[ "$opt_name" == "tpe" ]]
         then
             run_tpe "${prefix}"
         else
-            cmd="${prefix} --warmstart True"
-            echo $cmd
-            $cmd
-            echo `date '+%y/%m/%d %H:%M:%S'`
+            for warmstart in True False
+            do
+                cmd="${prefix} --warmstart ${warmstart} --metalearn True"
+                echo $cmd
+                $cmd
+                echo `date '+%y/%m/%d %H:%M:%S'`
+            done
         fi
     done
 }
@@ -61,10 +67,5 @@ do
     for dataset in slice_localization protein_structure naval_propulsion parkinsons_telemonitoring
     do
         run_bench ${seed} "hpolib" "${dataset}"
-    done
-
-    for dataset in credit_g vehicle kc1 phoneme blood_transfusion australian car segment
-    do
-        run_bench ${seed} "hpobench" "${dataset}"
     done
 done

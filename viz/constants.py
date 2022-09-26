@@ -1,29 +1,28 @@
 N_SAMPLES = 100
-N_INIT = N_SAMPLES * 5 // 100
+N_INIT = N_SAMPLES * 5 // 100  # N_INIT = 5
 N_RUNS = 20
 N_OBJ = 2
 COSTS_SHAPE = (N_RUNS, N_SAMPLES, N_OBJ)
 # LEVELS = [N_RUNS // 4, N_RUNS // 2, (3 * N_RUNS) // 4]
 LEVELS = [N_RUNS // 2] * 3
 Q, DF = [0.10, 0.15][0], [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0][2]
-WARMSTART_OPT = f"tpe_q={Q:.2f}_df={DF:.1f}"
 COLOR_LABEL_DICT = {
-    "random": ("olive", "Random"),
-    "warmstart_config": ("black", "Warmstart configs"),
     # f"tpe_q={Q:.2f}_df={DF:.1f}": ("red", f"Meta-learn TPE df={DF:.1f}"),
     f"tpe_q={Q:.2f}_df={DF:.1f}": ("red", "Meta-learn TPE"),
     # f"naive_metalearn_tpe_q={Q:.2f}": ("green", "Uniform weight"),
-    f"normal_tpe_q={Q:.2f}": ("blue", "MOTPE"),
+    f"normal_tpe_q={Q:.2f}": ("blue", "MO-TPE"),
     "tstr-ehvi": ("violet", "TST-R EHVI"),
     "tstr-parego": ("violet", "TST-R ParEGO"),
     "rgpe-ehvi": ("lime", "RGPE EHVI"),
     "rgpe-parego": ("lime", "RGPE ParEGO"),
+    "random": ("black", "Random"),
+    "only-warmstart": ("purple", "Only warm-start"),
 }
 LINESTYLES_DICT = {
     "random": "dashdot",
-    "warmstart_config": "dashdot",
+    "only-warmstart": "dashdot",
     # f"naive_metalearn_tpe_q={Q:.2f}": "o",
-    f"normal_tpe_q={Q:.2f}": "solid",
+    f"normal_tpe_q={Q:.2f}": "dotted",
     f"tpe_q={Q:.2f}_df={DF:.1f}": "solid",
     "tstr-ehvi": "dotted",
     "tstr-parego": "dashed",
@@ -32,10 +31,10 @@ LINESTYLES_DICT = {
 }
 MARKER_DICT = {
     "random": "",
+    "only-warmstart": "",
     # f"naive_metalearn_tpe_q={Q:.2f}": "o",
     f"normal_tpe_q={Q:.2f}": "*",
     f"tpe_q={Q:.2f}_df={DF:.1f}": "*",
-    "warmstart_config": "",
     "tstr-ehvi": "s",
     "tstr-parego": "o",
     "rgpe-ehvi": "s",
@@ -51,7 +50,7 @@ EAF_ANCHOR_DICT = {
     "naval_propulsion": (0.995, 1.038),
     "parkinsons_telemonitoring": (1.08, 0.998),
     "protein_structure": (0.995, 1.08),
-    "slice_localization": (0.995, 1.13),
+    "slice_localization": (0.995, 1.125),
 }
 EAF_ASPECT_DICT = {
     "naval_propulsion": 50,

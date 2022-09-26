@@ -28,7 +28,7 @@ from targets.nmt_bench.api import DatasetChoices as NMTChoices
 from targets.nmt_bench.api import NMTBench
 
 
-N_METADATA = 200
+N_METADATA = 100
 MAX_EVALS = 100
 N_INIT = MAX_EVALS * 5 // 100  # From the TPE 2013 paper
 bench_names = ["nmt", "hpolib", "hpobench"]
@@ -46,23 +46,32 @@ bench_dict = {
 
 def get_metadata_and_warm_start_configs(
     warmstart: bool,
+    metalearn: bool,
     bench: BaseTabularBenchAPI,
     bench_cls: Type[BaseTabularBenchAPI],
     dataset_choices: Union[HPOLibChoices, NMTChoices, HPOBenchChoices],
     dataset_name: str,
     seed: int,
+    n_init: int,
 ) -> Tuple[Optional[Dict[str, Dict[str, np.ndarray]]], Optional[Dict[str, np.ndarray]]]:
+
+    if metalearn:
+        if not warmstart:
+            return None, None
+        else:
+            raise ValueError("no warmstart for non meta-learning methods")
+
+    metadata = collect_metadata(
+        benchmark=bench_cls,
+        dataset_choices=dataset_choices,
+        max_evals=N_METADATA,
+        seed=seed,
+        exclude=dataset_name,
+    )
     if warmstart:
-        metadata = collect_metadata(
-            benchmark=bench_cls,
-            dataset_choices=dataset_choices,
-            max_evals=N_METADATA,
-            seed=seed,
-            exclude=dataset_name,
-        )
         warmstart_configs = select_warm_start_configs(
             metadata=metadata,
-            n_configs=N_INIT,
+            n_configs=n_init,
             hp_names=bench.hp_names,
             obj_names=bench.obj_names,
             seed=seed,
@@ -70,9 +79,12 @@ def get_metadata_and_warm_start_configs(
                 idx for idx, obj_name in enumerate(bench.obj_names) if not bench.minimize[obj_name]
             ],
         )
-        return metadata, warmstart_configs
     else:
-        return None, None
+        random_configs = metadata[list(metadata.keys())[0]]
+        # Just for Meta-learn BO methods (this is actualy random config, but not warm-starting)
+        warmstart_configs = {hp_name: random_configs[hp_name][:n_init] for hp_name in bench.hp_names}
+
+    return metadata, warmstart_configs
 
 
 def format_configs(
@@ -106,6 +118,31 @@ def evaluate_warmstart_configs(
     return warmstart_configs
 
 
+def optimize_by_only_warmstart(
+    args: Namespace,
+    bench: BaseTabularBenchAPI,
+    metadata: Dict[str, Dict[str, np.ndarray]],
+    warmstart_configs: Dict[str, np.ndarray],
+):
+    warmstart_configs = format_configs(configs=warmstart_configs, bench=bench)
+    n_warmstart_configs = [warmstart_configs[key].size for key in warmstart_configs][0]
+    opt = TPEOptimizer(
+        obj_func=bench.objective_func,
+        config_space=bench.config_space,
+        objective_names=bench.obj_names,
+        max_evals=n_warmstart_configs,
+        minimize=bench.minimize,
+        metadata=metadata,
+        warmstart_configs=warmstart_configs,
+        seed=args.exp_id,
+    )
+    opt.optimize()
+    observations = opt.fetch_observations()
+    n_repeats = (MAX_EVALS + n_warmstart_configs - 1) // n_warmstart_configs
+    observations = {k: np.tile(v, n_repeats)[:MAX_EVALS] for k, v in observations.items()}
+    return observations
+
+
 def optimize_by_tpe(
     args: Namespace,
     bench: BaseTabularBenchAPI,
@@ -124,6 +161,7 @@ def optimize_by_tpe(
         metadata=metadata,
         warmstart_configs=warmstart_configs,
         seed=args.exp_id,
+        n_init=5,
         quantile=args.quantile,
         uniform_transform=args.uniform_transform,
         dim_reduction_factor=args.dim_reduction_factor,
@@ -194,20 +232,22 @@ def optimize_by_bo(
 
 def get_opt_name(args: Namespace) -> str:
     opt_name = args.opt_name
+    prefix = "" if args.warmstart else "no-warmstart-"
     if opt_name != "tpe":
-        return opt_name
+        return prefix + opt_name
     if not args.warmstart:
         return f"normal_tpe_q={args.quantile:.2f}"
     if args.uniform_transform:
-        return f"naive_metalearn_tpe_q={args.quantile:.2f}"
+        return f"{prefix}naive_metalearn_tpe_q={args.quantile:.2f}"
 
-    return f"tpe_q={args.quantile:.2f}_df={args.dim_reduction_factor:.0f}"
+    return f"{prefix}tpe_q={args.quantile:.2f}_df={args.dim_reduction_factor:.1f}"
 
 
 if __name__ == "__main__":
-    opt_names = ["tpe", "rgpe-parego", "rgpe-ehvi", "tstr-parego", "tstr-ehvi"]
+    opt_names = ["tpe", "rgpe-parego", "rgpe-ehvi", "tstr-parego", "tstr-ehvi", "only-warmstart"]
     parser = ArgumentParser()
     parser.add_argument("--warmstart", type=str, choices=["True", "False"], required=True)
+    parser.add_argument("--metalearn", type=str, choices=["True", "False"], required=True)
     parser.add_argument("--bench_name", type=str, choices=bench_names, required=True)
     dataset_choices = [c.name for c in HPOLibChoices] + [c.name for c in NMTChoices] + [c.name for c in HPOBenchChoices]
     parser.add_argument("--dataset_name", type=str, choices=dataset_choices, required=True)
@@ -220,8 +260,9 @@ if __name__ == "__main__":
     parser.add_argument("--dim_reduction_factor", type=float, default=3.0)
 
     args = parser.parse_args()
-    args.uniform_transform, args.warmstart = eval(args.uniform_transform), eval(args.warmstart)
-    warmstart, bench_name, dataset_name = args.warmstart, args.bench_name, args.dataset_name
+    args.uniform_transform = eval(args.uniform_transform)
+    args.warmstart, args.metalearn = eval(args.warmstart), eval(args.metalearn)
+    warmstart, metalearn, bench_name, dataset_name = args.warmstart, args.metalearn, args.bench_name, args.dataset_name
 
     opt_name = get_opt_name(args)
     file_path = get_result_file_path(dataset_name=dataset_name, opt_name=opt_name, seed=args.exp_id)
@@ -235,16 +276,23 @@ if __name__ == "__main__":
 
     obj_func = bench.objective_func
     config_space = bench.config_space
+    only_warmstart = bool(args.opt_name == "only-warmstart")
     metadata, warmstart_configs = get_metadata_and_warm_start_configs(
         warmstart=warmstart,
+        metalearn=metalearn,
         bench=bench,
         seed=args.exp_id,
         bench_cls=bench_cls,
         dataset_choices=dataset_choices,
         dataset_name=dataset_name,
+        n_init=int(args.quantile * N_METADATA) * (len(dataset_choices) - 1) if only_warmstart else N_INIT,
     )
     if args.opt_name == "tpe":
         results = optimize_by_tpe(args=args, bench=bench, metadata=metadata, warmstart_configs=warmstart_configs)
+    elif only_warmstart:
+        results = optimize_by_only_warmstart(
+            args=args, bench=bench, metadata=metadata, warmstart_configs=warmstart_configs
+        )
     else:
         results = optimize_by_bo(
             opt_name=args.opt_name, bench=bench, metadata=metadata, warmstart_configs=warmstart_configs
