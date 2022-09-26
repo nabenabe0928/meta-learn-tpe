@@ -55,7 +55,7 @@ def get_metadata_and_warm_start_configs(
     n_init: int,
 ) -> Tuple[Optional[Dict[str, Dict[str, np.ndarray]]], Optional[Dict[str, np.ndarray]]]:
 
-    if metalearn:
+    if not metalearn:
         if not warmstart:
             return None, None
         else:
