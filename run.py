@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
     # Only for ablation study
     parser.add_argument("--quantile", type=float, default=0.1)
-    parser.add_argument("--dim_reduction_factor", type=float, default=3.0)
+    parser.add_argument("--dim_reduction_factor", type=float, default=2.5)
 
     args = parser.parse_args()
     args.uniform_transform = eval(args.uniform_transform)

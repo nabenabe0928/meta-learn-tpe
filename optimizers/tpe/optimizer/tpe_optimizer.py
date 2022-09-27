@@ -35,7 +35,7 @@ class TPEOptimizer(BaseOptimizer):
         # The control parameters for experiments
         quantile: float = 0.1,
         uniform_transform: bool = False,
-        dim_reduction_factor: float = 5.0,
+        dim_reduction_factor: float = 2.5,
     ):
         """
         Args:
@@ -120,7 +120,7 @@ class TPEOptimizer(BaseOptimizer):
         elif constraints is not None:
             self._sampler = ConstraintTPE(objective_names=objective_names, constraints=constraints, **tpe_params)
         elif len(objective_names) == 1:
-            self._sampler = TPE(objective_name=objective_names[0], **tpe_params)
+            self._sampler = TPE(objective_name=objective_names[0], quantile=self._quantile, **tpe_params)
         else:
             self._sampler = MultiObjectiveTPE(objective_names=objective_names, quantile=self._quantile, **tpe_params)
 

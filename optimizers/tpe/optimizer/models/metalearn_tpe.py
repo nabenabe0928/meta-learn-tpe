@@ -136,6 +136,9 @@ class MetaLearnTPE(AbstractTPE):
     def get_task_weights(self) -> np.ndarray:
         sim = self._compute_task_similarity()
         task_weights = self._compute_task_weights(sim)
+        # if (self._samplers[OBJECTIVE_KEY].size + 1) % 20 == 0:
+        #     print(f"Itr. {self._samplers[OBJECTIVE_KEY].size}: {task_weights}")
+
         return task_weights
 
     def compute_probability_improvement(self, config_cands: Dict[str, np.ndarray]) -> np.ndarray:

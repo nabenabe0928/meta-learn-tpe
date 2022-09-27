@@ -17,6 +17,8 @@ class TPE(BaseTPE):
         seed: Optional[int],
         min_bandwidth_factor: float,
         top: float,
+        minimize: Optional[Dict[str, bool]],
+        quantile: float,
     ):
         super().__init__(
             config_space=config_space,
@@ -26,12 +28,15 @@ class TPE(BaseTPE):
             seed=seed,
             min_bandwidth_factor=min_bandwidth_factor,
             top=top,
+            minimize=minimize,
         )
         self._objective_name = objective_name
+        self._quantile = quantile
 
     def _percentile_func(self) -> int:
         n_observations = self._observations[self._objective_name].size
-        return int(np.ceil(0.25 * np.sqrt(n_observations)))
+        # return int(np.ceil(0.25 * np.sqrt(n_observations)))
+        return int(np.ceil(self._quantile * n_observations))
 
     def _calculate_order(self, results: Optional[Dict[str, float]] = None) -> np.ndarray:
         if results is None:

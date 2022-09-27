@@ -7,12 +7,16 @@ import ConfigSpace as CS
 from optimizers.tpe.optimizer.base_optimizer import BaseOptimizer, ObjectiveFunc
 
 
+DEFAULT_OBJECTIVE_NAMES = ["loss"]
+
+
 class RandomOptimizer(BaseOptimizer):
     def __init__(
         self,
         obj_func: ObjectiveFunc,
         config_space: CS.ConfigurationSpace,
-        objective_names: List[str],
+        *,
+        objective_names: List[str] = DEFAULT_OBJECTIVE_NAMES[:],
         resultfile: str = "temp",
         n_init: int = 10,
         max_evals: int = 100,
