@@ -5,85 +5,105 @@ N_OBJ = 2
 COSTS_SHAPE = (N_RUNS, N_SAMPLES, N_OBJ)
 # LEVELS = [N_RUNS // 4, N_RUNS // 2, (3 * N_RUNS) // 4]
 LEVELS = [N_RUNS // 2] * 3
-Q, DF = [0.10, 0.15][0], [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0][2]
+Q, DF = [0.10, 0.15][0], [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0][3]
+NO_WAMRSTART = ["no-warmstart-", ""][1]
+META_LEARN_TPE = f"{NO_WAMRSTART}tpe_q={Q:.2f}_df={DF:.1f}"
+NORMAL_TPE = f"normal_tpe_q={Q:.2f}"
+TSTR_EHVI = "tstr-ehvi"
+TSTR_PAREGO = "tstr-parego"
+RGPE_EHVI = "rgpe-ehvi"
+RGPE_PAREGO = "rgpe-parego"
+RANDOM_SEARCH = "random"
+ONLY_WS = "only-warmstart"
+HPOLIB = "hpolib"
+NMT = "nmt"
+HPOBENCH = "hpobench"
+NAVAL = "naval_propulsion"
+PARKINSONS = "parkinsons_telemonitoring"
+PROTEIN = "protein_structure"
+SLICE = "slice_localization"
+SO = "so_en"
+SW = "sw_en"
+TL = "tl_en"
+
 COLOR_LABEL_DICT = {
     # f"tpe_q={Q:.2f}_df={DF:.1f}": ("red", f"Meta-learn TPE df={DF:.1f}"),
-    f"tpe_q={Q:.2f}_df={DF:.1f}": ("red", "Meta-learn TPE"),
+    META_LEARN_TPE: ("red", "Meta-learn TPE"),
     # f"naive_metalearn_tpe_q={Q:.2f}": ("green", "Uniform weight"),
-    f"normal_tpe_q={Q:.2f}": ("blue", "MO-TPE"),
-    "tstr-ehvi": ("violet", "TST-R EHVI"),
-    "tstr-parego": ("violet", "TST-R ParEGO"),
-    "rgpe-ehvi": ("lime", "RGPE EHVI"),
-    "rgpe-parego": ("lime", "RGPE ParEGO"),
-    "random": ("black", "Random"),
-    "only-warmstart": ("purple", "Only warm-start"),
+    NORMAL_TPE: ("blue", "MO-TPE"),
+    TSTR_EHVI: ("violet", "TST-R EHVI"),
+    TSTR_PAREGO: ("violet", "TST-R ParEGO"),
+    RGPE_EHVI: ("lime", "RGPE EHVI"),
+    RGPE_PAREGO: ("lime", "RGPE ParEGO"),
+    RANDOM_SEARCH: ("black", "Random"),
+    ONLY_WS: ("purple", "Only warm-start"),
 }
 LINESTYLES_DICT = {
-    "random": "dashdot",
-    "only-warmstart": "dashdot",
+    META_LEARN_TPE: "solid",
+    NORMAL_TPE: "dotted",
+    TSTR_EHVI: "dotted",
+    TSTR_PAREGO: "dashed",
+    RGPE_EHVI: "dotted",
+    RGPE_PAREGO: "dashed",
+    RANDOM_SEARCH: "dashdot",
+    ONLY_WS: "dashdot",
     # f"naive_metalearn_tpe_q={Q:.2f}": "o",
-    f"normal_tpe_q={Q:.2f}": "dotted",
-    f"tpe_q={Q:.2f}_df={DF:.1f}": "solid",
-    "tstr-ehvi": "dotted",
-    "tstr-parego": "dashed",
-    "rgpe-ehvi": "dotted",
-    "rgpe-parego": "dashed"
 }
 MARKER_DICT = {
-    "random": "",
-    "only-warmstart": "",
+    META_LEARN_TPE: "*",
+    NORMAL_TPE: "*",
+    TSTR_EHVI: "s",
+    TSTR_PAREGO: "o",
+    RGPE_EHVI: "s",
+    RGPE_PAREGO: "o",
+    RANDOM_SEARCH: "",
+    ONLY_WS: "",
     # f"naive_metalearn_tpe_q={Q:.2f}": "o",
-    f"normal_tpe_q={Q:.2f}": "*",
-    f"tpe_q={Q:.2f}_df={DF:.1f}": "*",
-    "tstr-ehvi": "s",
-    "tstr-parego": "o",
-    "rgpe-ehvi": "s",
-    "rgpe-parego": "o"
 }
 EAF_ZOOM_DICT = {
-    "naval_propulsion": 2.5,
-    "parkinsons_telemonitoring": 3,
-    "protein_structure": 3,
-    "slice_localization": 3,
+    NAVAL: 2.5,
+    PARKINSONS: 3,
+    PROTEIN: 3,
+    SLICE: 3,
 }
 EAF_ANCHOR_DICT = {
-    "naval_propulsion": (0.995, 1.038),
-    "parkinsons_telemonitoring": (1.08, 0.998),
-    "protein_structure": (0.995, 1.08),
-    "slice_localization": (0.995, 1.125),
+    NAVAL: (0.995, 1.038),
+    PARKINSONS: (1.08, 0.998),
+    PROTEIN: (0.995, 1.08),
+    SLICE: (0.995, 1.125),
 }
 EAF_ASPECT_DICT = {
-    "naval_propulsion": 50,
-    "parkinsons_telemonitoring": 100,
-    "protein_structure": 600,
-    "slice_localization": 400,
+    NAVAL: 50,
+    PARKINSONS: 100,
+    PROTEIN: 600,
+    SLICE: 400,
 }
 EAF_INSET_XLIM_DICT = {
-    "naval_propulsion": (0, 160),
-    "parkinsons_telemonitoring": (0, 100),
-    "protein_structure": (40, 200),
-    "slice_localization": (0, 1000),
+    NAVAL: (0, 160),
+    PARKINSONS: (0, 100),
+    PROTEIN: (40, 200),
+    SLICE: (0, 1000),
 }
 EAF_INSET_YLIM_DICT = {
-    "naval_propulsion": (2e-5, 1e-3),
-    "parkinsons_telemonitoring": (8e-3, 2e-2),
-    "protein_structure": (2.2e-1, 3e-1),
-    "slice_localization": (1e-4, 2e-3),
+    NAVAL: (2e-5, 1e-3),
+    PARKINSONS: (8e-3, 2e-2),
+    PROTEIN: (2.2e-1, 3e-1),
+    SLICE: (1e-4, 2e-3),
 }
-BENCH_NAMES = ["hpolib", "nmt", "hpobench"]
+BENCH_NAMES = [HPOLIB, NMT, HPOBENCH]
 DATASET_NAMES = {
-    "hpolib": [
-        "naval_propulsion",
-        "parkinsons_telemonitoring",
-        "protein_structure",
-        "slice_localization",
+    HPOLIB: [
+        NAVAL,
+        PARKINSONS,
+        PROTEIN,
+        SLICE,
     ],
-    "nmt": [
-        "so_en",
-        "sw_en",
-        "tl_en",
+    NMT: [
+        SO,
+        SW,
+        TL,
     ],
-    "hpobench": [
+    HPOBENCH: [
         "credit_g",
         "vehicle",
         "kc1",
@@ -95,34 +115,39 @@ DATASET_NAMES = {
     ]
 }
 NAME_DICT = {
-    "naval_propulsion": "Naval Propulsion",
-    "parkinsons_telemonitoring": "Parkinsons Telemonitoring",
-    "protein_structure": "Protein Structure",
-    "slice_localization": "Slice Localization",
-    "so_en": "Somali to English",
-    "sw_en": "Swahili to English",
-    "tl_en": "Tagalog to English",
+    NAVAL: "Naval Propulsion",
+    PARKINSONS: "Parkinsons Telemonitoring",
+    PROTEIN: "Protein Structure",
+    SLICE: "Slice Localization",
+    SO: "Somali to English",
+    SW: "Swahili to English",
+    TL: "Tagalog to English",
 }
+
+RUNTIME = "runtime"
+DECODING_TIME = "decoding_time"
+VALID_MSE = "valid_mse"
+BLEU = "bleu"
 OBJ_NAMES_DICT = {
-    "hpolib": ["runtime", "valid_mse"],
-    "nmt": ["decoding_time", "bleu"],
-    "hpobench": ["precision", "bal_acc"]
+    HPOLIB: [RUNTIME, VALID_MSE],
+    NMT: [DECODING_TIME, BLEU],
+    HPOBENCH: ["precision", "bal_acc"]
 }
 OBJ_LABEL_DICT = {
-    "runtime": "Runtime",
-    "valid_mse": "Validation MSE",
-    "decoding_time": "Runtime",
-    "bleu": "BLEU",
+    RUNTIME: "Runtime",
+    VALID_MSE: "Validation MSE",
+    DECODING_TIME: "Runtime",
+    BLEU: "BLEU",
 }
 LARGER_IS_BETTER_DICT = {
-    "hpolib": None,
-    "nmt": [1],
-    "hpobench": [0, 1],
+    HPOLIB: None,
+    NMT: [1],
+    HPOBENCH: [0, 1],
 }
 LOGSCALE_DICT = {
-    "hpolib": [1],
-    "nmt": None,
-    "hpobench": None,
+    HPOLIB: [1],
+    NMT: None,
+    HPOBENCH: None,
 }
 TICK_PARAMS = dict(
     labelleft=False,

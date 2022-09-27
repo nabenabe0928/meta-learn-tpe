@@ -235,7 +235,7 @@ def get_opt_name(args: Namespace) -> str:
     prefix = "" if args.warmstart else "no-warmstart-"
     if opt_name != "tpe":
         return prefix + opt_name
-    if not args.warmstart:
+    if not args.metalearn:
         return f"normal_tpe_q={args.quantile:.2f}"
     if args.uniform_transform:
         return f"{prefix}naive_metalearn_tpe_q={args.quantile:.2f}"
