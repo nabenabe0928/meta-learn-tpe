@@ -6,6 +6,7 @@ incumbents/
 **/.mypy_cache
 **/.pytest_cache
 .coverage
+figs/
 
 build/
 dist/

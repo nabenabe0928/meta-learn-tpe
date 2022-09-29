@@ -40,7 +40,7 @@ plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["font.size"] = 18
 plt.rcParams["mathtext.fontset"] = "stix"  # The setting of math font
 PLOT_CHECK_MODE = False
-HV_MODE = True
+HV_MODE = False
 
 
 def disable_axis_label(
@@ -108,7 +108,7 @@ def plot_eaf(
         surfs_list.append(surfs)
     else:
         plot_kwargs = dict(
-            colors=colors, labels=labels, linestyles=linestyles, markers=markers, markersize=3,
+            colors=colors, labels=labels, linestyles=linestyles, markers=markers, markersize=3, alpha=0.5
         )
         lines = eaf_plot.plot_multiple_surface_with_band(ax, surfs_list=surfs_list, **plot_kwargs)
         label = "True Pareto front"

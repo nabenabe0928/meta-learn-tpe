@@ -178,3 +178,12 @@ class TPEOptimizer(BaseOptimizer):
         eval_config = {hp_name: self._warmstart_configs[hp_name][idx] for hp_name in self._hp_names}
         self._warmstart_counter += 1
         return eval_config
+
+    def collect_task_weight_log(self) -> np.ndarray:
+        # Only for experiments
+        if hasattr(self._sampler, "_target_task_weight_log"):
+            n_missing = self._max_evals - len(self._sampler._target_task_weight_log)
+            self._sampler._target_task_weight_log.extend([-1] * n_missing)
+            return self._sampler._target_task_weight_log
+        else:
+            return np.full(self._max_evals, -1)

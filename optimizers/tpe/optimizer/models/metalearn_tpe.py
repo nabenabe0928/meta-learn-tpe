@@ -64,6 +64,7 @@ class MetaLearnTPE(AbstractTPE):
         self._init_samplers(
             objective_names=objective_names, constraints=constraints, metadata=metadata, tpe_params=tpe_params
         )
+        self._target_task_weight_log = []
 
     def _init_samplers(
         self,
@@ -133,12 +134,16 @@ class MetaLearnTPE(AbstractTPE):
 
         return weights
 
+    def _store_task_weight(self, task_weights: np.ndarray) -> None:
+        n_evals = self._samplers[OBJECTIVE_KEY].size
+        n_missing = n_evals - len(self._target_task_weight_log)
+        self._target_task_weight_log.extend([-1] * n_missing)
+        self._target_task_weight_log.append(task_weights[0])
+
     def get_task_weights(self) -> np.ndarray:
         sim = self._compute_task_similarity()
         task_weights = self._compute_task_weights(sim)
-        # if (self._samplers[OBJECTIVE_KEY].size + 1) % 20 == 0:
-        #     print(f"Itr. {self._samplers[OBJECTIVE_KEY].size}: {task_weights}")
-
+        self._store_task_weight(task_weights)
         return task_weights
 
     def compute_probability_improvement(self, config_cands: Dict[str, np.ndarray]) -> np.ndarray:
