@@ -12,12 +12,12 @@ run_tpe () {
 
     for quantile in 0.10 0.15
     do
-        cmd="${prefix} --warmstart False --metalearn False --quantile ${quantile}"
-        echo $cmd
-        $cmd
-        echo `date '+%y/%m/%d %H:%M:%S'`
+        # cmd="${prefix} --warmstart False --metalearn False --quantile ${quantile}"
+        # echo $cmd
+        # $cmd
+        # echo `date '+%y/%m/%d %H:%M:%S'`
 
-        for warmstart in True False
+        for warmstart in False # True
         do
             cmd="${prefix} --warmstart ${warmstart} --metalearn True --uniform_transform True --quantile ${quantile}"
             echo $cmd
@@ -39,7 +39,7 @@ run_bench () {
     seed=${1}
     bench_name=${2}
     dataset_name=${3}
-    for opt_name in tpe only-warmstart rgpe-parego rgpe-ehvi tstr-parego tstr-ehvi
+    for opt_name in tpe # only-warmstart rgpe-parego rgpe-ehvi tstr-parego tstr-ehvi
     do
         prefix="python run.py --exp_id ${seed} --opt_name ${opt_name} --bench_name ${bench_name} --dataset_name ${dataset_name}"
         if [[ "$opt_name" == "tpe" ]]
