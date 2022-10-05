@@ -35,7 +35,6 @@ class TPE(BaseTPE):
 
     def _percentile_func(self) -> int:
         n_observations = self._observations[self._objective_name].size
-        # return int(np.ceil(0.25 * np.sqrt(n_observations)))
         return int(np.ceil(self._quantile * n_observations))
 
     def _calculate_order(self, results: Optional[Dict[str, float]] = None) -> np.ndarray:

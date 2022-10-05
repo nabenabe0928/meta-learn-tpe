@@ -7,7 +7,6 @@ import ConfigSpace as CS
 import numpy as np
 
 from optimizers.tpe.utils.constants import NumericType
-# from optimizers.tpe.utils.utils import get_logger, get_random_sample, revert_eval_config, store_results
 from optimizers.tpe.utils.utils import get_logger, get_random_sample, revert_eval_config
 
 
@@ -91,7 +90,6 @@ class BaseOptimizer(metaclass=ABCMeta):
         logger_name = logger_name if use_logger else "temp"
         logger = get_logger(logger_name, logger_name, disable=(not use_logger))
         t = 0
-        # runtime_key = [name for name in self._objective_names if "time" in name][0]
 
         while True:
             logger.info(f"\nIteration: {t + 1}")
@@ -100,7 +98,6 @@ class BaseOptimizer(metaclass=ABCMeta):
             time2sample = time.time() - start
 
             results = self._obj_func(eval_config)
-            # runtime = results[runtime_key]
             self.update(eval_config=eval_config, results=results, runtime=time2sample)
 
             logger.info(f"Cur. results: {results}, Cur. Config: {eval_config}")
@@ -108,14 +105,6 @@ class BaseOptimizer(metaclass=ABCMeta):
 
             if t >= self._max_evals:
                 break
-
-        # observations = self.fetch_observations()
-        # store_results(
-        #     logger=logger,
-        #     observations=observations,
-        #     file_name=self.resultfile,
-        #     requirements=self._requirements,
-        # )
 
     @abstractmethod
     def update(self, eval_config: Dict[str, Any], results: Dict[str, float], runtime: float) -> None:

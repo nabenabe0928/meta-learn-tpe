@@ -12,7 +12,6 @@ from optimizers.tpe.utils.constants import NumericType, OBJECTIVE_KEY
 from optimizers.tpe.utils.special_funcs import exp
 
 
-# TPESamplerType = Union[ConstraintTPE, TPE, MultiObjectiveTPE]
 TPESamplerType = Union[TPE, MultiObjectiveTPE]
 
 
@@ -75,8 +74,6 @@ class MetaLearnTPE(AbstractTPE):
     ) -> None:
         sampler_class: Type[Union[TPE, ConstraintTPE, MultiObjectiveTPE]]
         if constraints is not None:
-            # tpe_params.update(objective_names=objective_names, constraints=constraints)
-            # sampler_class = ConstraintTPE
             raise NotImplementedError
         elif len(objective_names) == 1:
             tpe_params.update(objective_name=objective_names[0])
