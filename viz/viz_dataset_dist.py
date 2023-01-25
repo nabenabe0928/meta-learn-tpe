@@ -52,12 +52,12 @@ def plot_cum(ax: plt.Axes, nd_rank: Dict[str, np.ndarray], percentile: int, set_
             dataset_name = " to ".join([lang[s] for s in k.split("_")])
         ax.plot(np.arange(n_configs), np.cumsum(cnt), label=dataset_name, color=colors[i])
 
-    title = f"Cumulated count of Top-{percentile}% configuration"
+    title = f"Cumulative count of Top-{percentile}% configuration"
     ax.set_title(title)
     ax.set_xlabel("Config indices")
 
     if set_ylabel:
-        ax.set_ylabel("Cumulated count")
+        ax.set_ylabel("Cumulative count")
 
     ax.legend()
     ax.grid()

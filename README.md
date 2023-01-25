@@ -1,6 +1,6 @@
 # Meta-learning Tree-structured Parzen Estimator
 
-This package was used for the experiments of the paper `Multi-objective Tree-structured Parzen Estimator Meets Meta-learning`.
+This package was used for the experiments of the paper `Speeding up Multi-objective Hyperparameter Optimization by Task Similarity-Based Meta-Learning for the Tree-structured Parzen Estimator`.
 
 ## Setup
 

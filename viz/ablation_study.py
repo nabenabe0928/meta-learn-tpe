@@ -193,12 +193,12 @@ def plot_hv_for_hpolib(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
         if PLOT_CHECK_MODE:
             plt.show()
         else:
-            plt.savefig("figs/hv2d-hpolib-ablation.png", bbox_inches='tight')
+            plt.savefig("figs/hv2d-hpolib-ablation.pdf", bbox_inches='tight')
     else:
         if PLOT_CHECK_MODE:
             plt.show()
         else:
-            plt.savefig("figs/eaf-hpolib-ablation.png", bbox_inches='tight')
+            plt.savefig("figs/eaf-hpolib-ablation.pdf", bbox_inches='tight')
 
 
 def plot_hv_for_nmt(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
@@ -222,12 +222,12 @@ def plot_hv_for_nmt(subplots_kwargs, legend_kwargs, hv_mode: bool) -> None:
         if PLOT_CHECK_MODE:
             plt.show()
         else:
-            plt.savefig("figs/hv2d-nmt-ablation.png", bbox_inches='tight')
+            plt.savefig("figs/hv2d-nmt-ablation.pdf", bbox_inches='tight')
     else:
         if PLOT_CHECK_MODE:
             plt.show()
         else:
-            plt.savefig("figs/eaf-nmt-ablation.png", bbox_inches='tight')
+            plt.savefig("figs/eaf-nmt-ablation.pdf", bbox_inches='tight')
 
 
 if __name__ == "__main__":
