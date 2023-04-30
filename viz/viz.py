@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid1.inset_locator import mark_inset, zoomed_inset_axes
 
 import numpy as np
 
-from constants import (
+from viz.constants import (
     BENCH_NAMES,
     COLOR_LABEL_DICT,
     COSTS_SHAPE,
@@ -33,7 +33,7 @@ from constants import (
     OBJ_NAMES_DICT,
     TICK_PARAMS,
 )
-from utils import get_costs, get_true_pareto_front_and_ref_point
+from viz.utils import get_costs, get_true_pareto_front_and_ref_point
 
 
 plt.rcParams["font.family"] = "Times New Roman"

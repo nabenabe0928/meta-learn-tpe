@@ -5,7 +5,7 @@ N_OBJ = 2
 COSTS_SHAPE = (N_RUNS, N_SAMPLES, N_OBJ)
 # LEVELS = [N_RUNS // 4, N_RUNS // 2, (3 * N_RUNS) // 4]
 LEVELS = [N_RUNS // 2] * 3
-Q, DF = [0.10, 0.15][0], [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0][3]
+Q, DF = [0.10, 0.15][0], [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0][2]
 NO_WAMRSTART = ["no-warmstart-", ""][1]
 META_LEARN_TPE = f"{NO_WAMRSTART}tpe_q={Q:.2f}_df={DF:.1f}"
 NORMAL_TPE = f"normal_tpe_q={Q:.2f}"
@@ -28,7 +28,7 @@ TL = "tl_en"
 
 COLOR_LABEL_DICT = {
     # f"tpe_q={Q:.2f}_df={DF:.1f}": ("red", f"Meta-learn TPE df={DF:.1f}"),
-    META_LEARN_TPE: ("red", "Meta-learn TPE"),
+    META_LEARN_TPE: ("red", "Meta-learning TPE"),
     # f"naive_metalearn_tpe_q={Q:.2f}": ("green", "Uniform weight"),
     NORMAL_TPE: ("blue", "MO-TPE"),
     TSTR_EHVI: ("violet", "TST-R EHVI"),

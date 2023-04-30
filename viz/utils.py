@@ -1,7 +1,7 @@
 import json
 from typing import List, Tuple
 
-from constants import (
+from viz.constants import (
     N_OBJ,
     N_RUNS,
     N_SAMPLES,
