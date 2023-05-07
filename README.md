@@ -34,7 +34,7 @@ $ ./run_experiment.sh -s 0 -d 19
 For the citation, use the following format:
 ```
 @article{watanabe2023ctpe,
-  title={Speeding up Multi-objective Non-hierarchical Hyperparameter Optimization by Task Similarity-Based Meta-Learning for the Tree-structured {P}arzen Estimator},
+  title={Speeding up Multi-objective Hyperparameter Optimization by Task Similarity-Based Meta-Learning for the Tree-structured {P}arzen Estimator},
   author={S. Watanabe and N. Awad and M. Onishi and F. Hutter},
   journal={International Joint Conference on Artificial Intelligence},
   year={2023}
