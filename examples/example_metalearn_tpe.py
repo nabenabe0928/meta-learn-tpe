@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import time
-from typing import Dict, Tuple
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -9,7 +10,7 @@ import numpy as np
 from optimizers import TPEOptimizer
 
 
-def sphere(eval_config: Dict[str, float], shift: float = 0) -> Tuple[Dict[str, float], float]:
+def sphere(eval_config: dict[str, float], shift: float = 0) -> tuple[dict[str, float], float]:
     start = time.time()
     vals = np.array(list(eval_config.values()))
     return {"loss": np.sum((vals - shift) ** 2)}, time.time() - start

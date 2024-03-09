@@ -2,6 +2,9 @@
 
 This package was used for the experiments of the paper `Speeding up Multi-objective Hyperparameter Optimization by Task Similarity-Based Meta-Learning for the Tree-structured Parzen Estimator`.
 
+> [!NOTE]
+> Please check [examples](examples/example_metalearn_tpe.py) for the running example.
+
 ## Setup
 
 This package requires python 3.8 or later version.

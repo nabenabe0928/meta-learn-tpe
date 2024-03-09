@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import time
-from typing import Dict, Tuple
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -14,7 +15,7 @@ from tpe.optimizer import TPEOptimizer
 DIM = 2
 
 
-def multi_modal_MOP(config: Dict[str, float]) -> Tuple[Dict[str, float], float]:
+def multi_modal_MOP(config: dict[str, float]) -> tuple[dict[str, float], float]:
     """
     multi-modal MOP
 
@@ -30,7 +31,7 @@ def multi_modal_MOP(config: Dict[str, float]) -> Tuple[Dict[str, float], float]:
     return {"f1": f1, "f2": g * h}, time.time() - start
 
 
-def plot_result(observations: Dict[str, float]) -> None:
+def plot_result(observations: dict[str, float]) -> None:
     ans_f1 = np.linspace(0, 1, 100)
     ans_f2 = 1 - np.sqrt(ans_f1)
     plt.xlim(0, 1)
