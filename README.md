@@ -1,3 +1,6 @@
+> [!NOTE]
+> [OptunaHub](https://github.com/optuna/optunahub-registry/blob/main/package/samplers/meta_learn_tpe/sampler.py) provides another implementation of meta-learn TPE. Although the implemented algorithm appears to omit the dimension reduction, this implementation could be used as a reference as well. If you use the OptunaHub version, please explicitly cite my paper along with the OptunaHub paper so that people can identify which source you used.
+
 # Meta-learning Tree-structured Parzen Estimator
 
 This package was used for the experiments of the paper `Speeding up Multi-objective Hyperparameter Optimization by Task Similarity-Based Meta-Learning for the Tree-structured Parzen Estimator`.
